@@ -12,7 +12,7 @@ allowed-tools: Read Write Edit Glob Grep
 
 # save: File Conversations Into the Wiki
 
-Good answers and insights shouldn't disappear into chat history. This skill takes what was just discussed and files it as a permanent wiki page.
+Good answers and insights should not disappear into chat history. This skill takes what was just discussed and files it as a permanent wiki page.
 
 The wiki compounds. Save often.
 
@@ -39,7 +39,7 @@ Before creating the session note, consult the vault's methodology mode via `pyth
 - **PARA**: `wiki/projects/inbox/<date>-<topic>.md` (user reroutes to specific projects)
 - **Zettelkasten**: `wiki/<ID>-session-<topic>.md` (timestamped ID becomes the filename prefix)
 
-If `.vault-meta/mode.json` is absent, the router returns mode=generic paths. **Important global rule**: per global AGENTS.md `/save` convention, sessions for cross-project work should still file to `~/Documents/Obsidian Vault/sessions/` rather than the project's wiki. The mode router applies when filing to the project's own wiki/, not when filing to the global personal vault.
+If `.vault-meta/mode.json` is absent, the router returns mode=generic paths. **Important global rule**: per global AGENTS.md `/save` convention, sessions for cross-project work should file to `~/Documents/Obsidian Vault/sessions/` rather than the project's wiki. The mode router applies when filing to the project's own wiki, not when filing to the global personal vault.
 
 ## Concurrency (v1.7+)
 

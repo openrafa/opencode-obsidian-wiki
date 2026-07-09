@@ -1,11 +1,11 @@
 ---
 name: wiki-fold
-description: "Rollup of wiki log entries into meta-pages. Reads the last 2^k entries from wiki/log.md, writes a structurally-idempotent fold page to wiki/folds/ that links back to children. Extractive summarization (no invention). Dry-run by default, stdout-only; commit mode writes and accepts that the write-hook hook auto-commits. Triggers on: fold the log, run a fold, run wiki-fold, log rollup, roll up log entries."
+description: "Rollup of wiki log entries into meta-pages. Reads the last 2^k entries from wiki/log.md, writes a structurally-idempotent fold page to wiki/folds/ that links back to children. Extractive summarization with no invention. Dry-run by default, stdout-only; commit mode writes and accepts that the write-hook auto-commits. Triggers on: fold the log, run a fold, run wiki-fold, log rollup, roll up log entries."
 ---
 
 # wiki-fold: Extractive Log Rollup
 
-Implements a bounded subset of Mechanism 1 from [[DragonScale Memory]]: flat fold over raw `wiki/log.md` entries. Fold-of-folds (hierarchical level-stacking) is **out of scope for this skill**; see "Scope boundary" below.
+Implements a bounded subset of Mechanism 1 from [[DragonScale Memory]]: flat fold over raw `wiki/log.md` entries. Fold-of-folds, hierarchical level-stacking, is out of scope for this skill. See "Scope boundary" below.
 
 A fold is **additive**: child log entries and their referenced pages are never modified, moved, or deleted. A fold is **extractive**: every outcome and theme in the output must be traceable to a specific child log entry. No invented facts, no synthesis beyond what the child entries support.
 
@@ -14,16 +14,16 @@ A fold is **additive**: child log entries and their referenced pages are never m
 ## Scope boundary (explicit)
 
 This skill does **not** implement:
-- Fold-of-folds / hierarchical level stacking (DragonScale spec calls for it; deferred to a future skill).
-- Automatic triggering (folds are always human-invoked in Phase 1).
-- Semantic-tiling dedup (Mechanism 3; separate skill).
+- Fold-of-folds / hierarchical level stacking. DragonScale spec calls for it; deferred to a future skill.
+- Automatic triggering. Folds are always human-invoked in Phase 1.
+- Semantic-tiling dedup. Mechanism 3, separate skill.
 
 It **does** implement:
 - Flat fold over raw log.md entries at a chosen batch exponent `k`.
 - Structural idempotency via a deterministic fold ID.
 - Extractive summarization with count-checking.
 
-When referring to level in frontmatter, use `batch_exponent: k` (not `level: k`), because this skill does not produce hierarchical levels.
+When referring to level in frontmatter, use `batch_exponent: k` rather than `level: k`, because this skill does not produce hierarchical levels.
 
 ---
 
@@ -34,7 +34,7 @@ When referring to level in frontmatter, use `batch_exponent: k` (not `level: k`)
 | **dry-run (default)** | **No Write tool calls.** Emit fold content via Bash `cat`/`heredoc` to stdout only. | `fold the log, dry-run k=3` |
 | **commit** | Uses Write/Edit tools. Each Write fires the repo write-hook hook which auto-commits wiki changes. Accept this. Compose full content first, then sequence writes. | `fold the log, commit k=3` (only after a clean dry-run) |
 
-**Why stdout-only in dry-run**: the repo's `hooks/hooks.json` write-hook hook fires on any `Write|Edit` and runs `git add wiki/ .raw/`. Writing to `/tmp` does not stage /tmp, but it still triggers the hook, which will commit *any pending wiki changes* under a generic message. Dry-run must leave zero residue. Bash stdout does not fire the hook.
+**Why stdout-only in dry-run**: the repo's `hooks/hooks.json` write-hook fires on any `Write|Edit` and runs `git add wiki/ .raw/`. Writing to `/tmp` does not stage /tmp, but it still triggers the hook, which commits any pending wiki changes under a generic message. Dry-run must leave zero residue. Bash stdout does not fire the hook.
 
 ---
 
@@ -51,7 +51,7 @@ bash scripts/wiki-lock.sh acquire "$FOLD_PATH" || {
 bash scripts/wiki-lock.sh release "$FOLD_PATH"
 ```
 
-Fold pages are deterministically named (`fold-k{K}-from-{DATE}-to-{DATE}-n{COUNT}.md`), so two parallel folds with the same parameters target the same path. Without the lock, they could overwrite each other's outputs. The duplicate-detection check inside this skill (already documented below) handles the "fold already exists" case at the SKILL level; the lock handles the in-flight-write race at the OS level.
+Fold pages are deterministically named, so two parallel folds with the same parameters target the same path. Without the lock, they could overwrite each other. The duplicate-detection check handles the "fold already exists" case at the skill level; the lock handles the in-flight-write race at the OS level.
 
 Dry-run mode does not acquire a lock (no writes happen).
 

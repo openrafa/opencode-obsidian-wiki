@@ -61,7 +61,7 @@ The `webfetch` tool has built-in defenses against many of these. Apply them here
 - Reject any `---` YAML-frontmatter delimiter inside fetched content — the source page's frontmatter is authored by the loop, not by the upstream source
 - Truncate fetched bodies to ~50KB to avoid context blowout
 
-**3. Per-loop cost expectation.** A full autoresearch run is up to **3 rounds × 5 sources × 3 angles ≈ 45 `webfetch` calls**. Web fetching is metered. The `max_pages: 15` cap in `references/program.md` limits FILING cost but does NOT cap FETCH count. Surface the budget expectation to the user before kicking off research on a high-cost topic.
+**Per-loop cost expectation.** A full autoresearch run is up to 3 rounds × 5 sources × 3 angles, approximately 45 fetch calls. Web fetching is metered. The `max_pages: 15` cap in `references/program.md` limits filing cost but does not cap fetch count. Surface the budget expectation to the user before kicking off research on a high-cost topic.
 
 **4. Failure mode.** If a fetch fails (timeout, 4xx/5xx, content too large, sanitization removed everything), log the URL + reason to `wiki/log.md` and continue the loop. Do NOT abort the whole run. Do NOT silently swallow — every skipped source is a fact the user needs in the synthesis page's "Open Questions" section.
 

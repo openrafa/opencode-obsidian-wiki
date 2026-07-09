@@ -1,14 +1,14 @@
 ---
 name: wiki-retrieve
-description: "Hybrid retrieval primitive for the Compound Vault. Replaces the v1.6 static hot→index→drill read order with contextual-prefix + BM25 + cosine-rerank, modeled on published's Sept 2024 Contextual Retrieval research (35-49-67% retrieval-failure reduction). Opt-in via `bash bin/setup-retrieve.sh`; feature-detected by wiki-query and autoresearch. Triggers on: retrieve, hybrid retrieval, BM25, rerank, contextual retrieval, search the chunks, chunk search, vault search, semantic search, what chunks match, find relevant passages."
+description: "Hybrid retrieval primitive for the Compound Vault. Replaces the v1.6 static hot→index→drill read order with contextual-prefix + BM25 + cosine-rerank, modeled on Anthropic's Sept 2024 Contextual Retrieval research. Opt-in via `bash bin/setup-retrieve.sh`; feature-detected by wiki-query and autoresearch. Triggers on: retrieve, hybrid retrieval, BM25, rerank, contextual retrieval, search the chunks, chunk search, vault search, semantic search, what chunks match, find relevant passages."
 allowed-tools: Read Bash
 ---
 
 # wiki-retrieve: Hybrid Retrieval over the Vault
 
-The v1.6 query path was `Read(hot.md) → Read(index.md) → Read(3-5 pages) → synthesize`. It worked, but page-level granularity loses to chunk-level granularity any time the answer lives in a specific passage rather than a whole page. The v1.7 `wiki-retrieve` skill is the chunk-level upgrade — opt-in, feature-gated, and replaces nothing if you don't run the setup.
+The v1.6 query path was `Read(hot.md) → Read(index.md) → Read(3-5 pages) → synthesize`. It worked, but page-level granularity loses to chunk-level granularity any time the answer lives in a specific passage rather than a whole page. The v1.7 `wiki-retrieve` skill is the chunk-level upgrade, opt-in and feature-gated. It replaces nothing if you don't run the setup.
 
-**Origin**: This skill is original to opencode-wiki. There is no upstream kepano equivalent. The technique is from [published's Sept 2024 Contextual Retrieval research](https://www.anthropic.com/news/contextual-retrieval) — we implement it as agent-skill plumbing.
+**Origin**: This skill is written for opencode-wiki. There is no upstream kepano equivalent. The technique is from [Anthropic's Sept 2024 Contextual Retrieval research](https://www.anthropic.com/news/contextual-retrieval) — we implement it as agent-skill plumbing.
 
 ---
 
@@ -26,7 +26,7 @@ What it does, in order:
 1. Sanity-checks the 4 scripts are present and executable.
 2. Creates `.vault-meta/chunks/` and `.vault-meta/bm25/`.
 3. Probes ollama at `http://127.0.0.1:11434` for `nomic-embed-text` (rerank prerequisite). Reports status; does not install.
-4. Reports which contextual-prefix tier will be used (remote model API / legacy CLI / synthetic). The legacy CLI tier requires the `legacy-agent` binary on PATH; if unavailable, falls back to synthetic.
+4. Reports which contextual-prefix tier will be used. The legacy CLI tier requires the `legacy-agent` binary on PATH; if unavailable, falls back to synthetic.
 5. Runs `contextual-prefix.py --all` to chunk + contextualize every wiki page.
 6. Runs `bm25-index.py build`.
 7. Smoke-tests `retrieve.py` against the query "wiki".
@@ -40,7 +40,7 @@ Flags:
 
 ## Cost ceiling
 
-Per published's published research, contextual-prefix generation costs approximately **$12 per 1,000 documents** with Haiku + prompt caching. For a 100-page vault with ~3 chunks per page, that's ~$3.60 one-time, with incremental updates much cheaper (only changed pages re-process).
+Per Anthropic's published research, contextual-prefix generation costs approximately **$12 per 1,000 documents** with Haiku + prompt caching. For a 100-page vault with ~3 chunks per page, that's ~$3.60 one-time, with incremental updates much cheaper.
 
 If you want to validate cost before running on a large vault:
 
@@ -49,7 +49,7 @@ bash bin/setup-retrieve.sh --no-llm   # provision with tier-3 synthetic prefix
 # inspect retrieval quality manually; if insufficient, re-run without --no-llm
 ```
 
-The legacy CLI subprocess tier (no credential, requires `legacy-agent` binary on PATH) is free in $ terms but slower (~3-10s per chunk depending on Haiku availability). Without the binary, falls back to synthetic prefix.
+The legacy CLI subprocess tier (no credential, requires `legacy-agent` binary on PATH) is free in $ terms but slower. Without the binary, falls back to synthetic prefix.
 
 ---
 
@@ -93,12 +93,12 @@ Reports which strategy will run (cosine via ollama / no-op).
 
 After this skill is installed, `skills/wiki-query/SKILL.md` standard and deep modes will:
 
-1. Read `wiki/hot.md` (always — quick context).
+1. Read `wiki/hot.md` (always, quick context).
 2. Call `python3 scripts/retrieve.py "<query>" --top 5`.
 3. Read the candidate pages from the result's `absolute_path` field (using the v1.7 transport selector — `obsidian-cli read` or `Read` tool).
 4. Synthesize with chunk-level citation.
 
-Quick mode is unchanged (hot.md only — never invokes retrieval).
+Quick mode is unchanged, hot.md only, never invokes retrieval.
 
 If `retrieve.py` exits 10 (feature not provisioned), `wiki-query` falls back to the legacy v1.6 `Read(index.md) → Read(N pages)` order. No user-visible breakage.
 
@@ -132,9 +132,9 @@ Documented for transparency; not implemented in v1.7.0:
 |---|---|---|
 | Contextual prefix | synthetic | + Voyage embed-based pseudo-prefix |
 | Sparse retrieval | BM25 | + SPLADE learned-sparse |
-| Dense retrieval | (none — rerank-only) | Separate vector candidate set fused with BM25 (true hybrid) |
+| Dense retrieval | none, rerank-only | Separate vector candidate set fused with BM25 (true hybrid) |
 | Rerank | nomic cosine / no-op | + sentence-transformers BGE-base, Cohere Rerank, Voyage Rerank |
-| Multi-vault | (single-vault) | Federation via wiki-federate (backlog #15) |
+| Multi-vault | single-vault | Federation via wiki-federate (backlog #15) |
 
 ---
 

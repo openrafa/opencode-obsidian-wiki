@@ -2,21 +2,15 @@
 
 [English](README.md) · [中文](README.zh-CN.md)
 
-OpenCode-compatible **wiki / Obsidian** agent skills. Install from scratch into
-`~/.opencode/skills/` — no private vault and no live credentials included.
+OpenCode-compatible **wiki / Obsidian** agent skills. Install from scratch into `~/.opencode/skills/` — no private vault and no live credentials included.
 
-**Remote name:** [openrafa/opencode-obsidian-wiki](https://github.com/openrafa/opencode-obsidian-wiki)
-(local folder may still be called `opencode-wiki-skills`).
+**Remote name:** [openrafa/opencode-obsidian-wiki](https://github.com/openrafa/opencode-obsidian-wiki) (local folder may still be called `opencode-wiki-skills`).
 
-**Suite hub:** [opencode-methodology](https://github.com/openrafa/opencode-methodology)
-→ [Install from scratch](https://github.com/openrafa/opencode-methodology/blob/main/docs/install-from-scratch.md).
+**Suite hub:** [opencode-methodology](https://github.com/openrafa/opencode-methodology) → [Install from scratch](https://github.com/openrafa/opencode-methodology/blob/main/docs/install-from-scratch.md).
 
-## Attribution (highlight)
+## Attribution
 
-This repo is a **fork** of
-[AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian),
-adapted for OpenCode. It also **borrows ideas** from Karpathy / kepano — credit
-all of them:
+This repo is a **fork** of [AgriciDaniel/claude-obsidian](https://github.com/AgriciDaniel/claude-obsidian), adapted for OpenCode. It also **borrows ideas** from Karpathy / kepano — credit all of them:
 
 | Kind | Upstream |
 | --- | --- |
@@ -28,11 +22,7 @@ all of them:
 
 Full notes: [`docs/upstream.md`](docs/upstream.md) · [中文](docs/upstream.zh-CN.md).
 
-## License
-
-MIT — Copyright (c) 2026 [Cyame](https://github.com/Cyame). See [`LICENSE`](LICENSE).
-
-## Getting started (from zero)
+## Getting started
 
 1. Install [OpenCode](https://opencode.ai). Optional: Obsidian desktop + [OMOS](https://github.com/code-yeongyu/oh-my-openagent).
 2. Read [`docs/workflow-model.md`](docs/workflow-model.md) and [`docs/transport-model.md`](docs/transport-model.md) before enabling remote egress.
@@ -46,12 +36,9 @@ bash scripts/install.sh
 # → ~/.opencode/skills/opencode-wiki/
 ```
 
-4. Point the Agent at your vault via project or vault **`AGENTS.md`** (see the
-   `wiki` skill scaffold). Do not commit private vault paths to public repos.
-5. Smoke-test on a non-sensitive vault: scaffold / `wiki-ingest` / `wiki-query` /
-   `wiki-lint` / `save`.
-6. Optional Python isolation for heavy helpers:
-   [opencode-skill-runtime](https://github.com/openrafa/opencode-skill-runtime).
+4. Point the Agent at your vault via project or vault **`AGENTS.md`** (see the `wiki` skill scaffold). Do not commit private vault paths to public repos.
+5. Smoke-test on a non-sensitive vault: scaffold / `wiki-ingest` / `wiki-query` / `wiki-lint` / `save`.
+6. Optional Python isolation for heavy helpers: [opencode-skill-runtime](https://github.com/openrafa/opencode-skill-runtime).
 
 ### What lands on disk
 
@@ -68,8 +55,7 @@ bash scripts/install.sh
 
 **Is:** reusable skill bundle; OpenCode transport docs (API / MCP / CLI / fs).
 
-**Is not:** a private vault export; a substitute for your credentials; a promise
-that every remote-model call is safe by default.
+**Is not:** a private vault export; a substitute for your credentials; a promise that every remote-model call is safe by default.
 
 ## Docs
 
@@ -83,5 +69,8 @@ that every remote-model call is safe by default.
 
 ## Privacy
 
-Wiki workflows may read private notes, fetch the web, or call remote models.
-Review each skill; keep remote egress opt-in.
+Wiki workflows may read private notes, fetch the web, or call remote models. Review each skill; keep remote egress opt-in.
+
+## License
+
+MIT — Copyright (c) 2026 [Cyame](https://github.com/Cyame). See [`LICENSE`](LICENSE).

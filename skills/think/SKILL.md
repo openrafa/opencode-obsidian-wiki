@@ -1,6 +1,6 @@
 ---
 name: think
-description: "Apply the 10-principle thinking loop (OBSERVE-OBSERVE-LISTEN-THINK-CONNECT-CONNECT-FEEL-ACCEPT-CREATE-GROW) to any non-trivial problem. Walks agent through external observation, metacognition, active listening, first-principles analysis, lateral connection, system orchestration, intuition, intellectual humility, generative output, and iterative growth. Triggers on: think this through, 10-principle review, /think, OBSERVE LISTEN THINK, deep think, systematic thinking, structured reasoning, walk this through, audit my thinking, am I thinking about this right."
+description: "Apply the 10-principle thinking loop (OBSERVE-OBSERVE-LISTEN-THINK-CONNECT-CONNECT-FEEL-ACCEPT-CREATE-GROW) to any non-trivial problem. Walks through external observation, metacognition, active listening, first-principles analysis, lateral connection, system orchestration, intuition, intellectual humility, generative output, and iterative growth. Triggers on: think this through, 10-principle review, /think, OBSERVE LISTEN THINK, deep think, systematic thinking, structured reasoning, walk this through, audit my thinking, am I thinking about this right."
 allowed-tools: Read, Grep, Glob, Bash
 ---
 
@@ -92,9 +92,9 @@ Invoke `/think` when:
 
 Do NOT invoke `/think` for:
 
-- Single-line typo fixes (the discipline is overkill; just fix it)
-- Trivial lookups (no decision is being made; just answer)
-- Cases where you have already moved through the 10 stages implicitly (don't ceremonially re-do it)
+- Single-line typo fixes. The discipline is overkill; just fix it.
+- Trivial lookups. No decision is being made; just answer.
+- Cases where you have already moved through the 10 stages implicitly. Don't ceremonially re-do it.
 
 The framework's value scales with problem novelty + irreversibility. For a one-line fix that's easily reverted, the loop is dead weight. For a release-blocking audit decision, skipping any stage loses calibration.
 

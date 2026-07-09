@@ -227,7 +227,7 @@ Before validating anything, classify the page:
 - Counter drift (observed counter >= peek): **error**.
 - Address-map mismatch: **error**.
 
-Lint only observes. Do NOT auto-assign missing addresses during lint. Assignment is `wiki-ingest`'s responsibility only.
+Lint only observes. Do not auto-assign missing addresses during lint. Assignment is `wiki-ingest`'s responsibility.
 
 ### Output section in the lint report
 
