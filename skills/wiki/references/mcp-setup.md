@@ -1,0 +1,144 @@
+# MCP Setup
+
+MCP lets the agent read and write vault notes directly without copy-paste. Four options ordered from simplest to most featureful.
+
+> [!tip] Recommendation
+> If you have **Obsidian v1.12 or newer**, start with **Option D: Obsidian CLI**. It needs no MCP server, no plugins, and no TLS workarounds. Use Options A or B only if you need persistent MCP integration or are on an older Obsidian version.
+
+---
+
+## Step 1: Install the Local REST API Plugin
+
+You must do this in Obsidian (agent cannot do it programmatically):
+
+1. Obsidian > Settings > Community Plugins > Turn off Restricted Mode
+2. Browse > Search "Local REST API" > Install > Enable
+3. Settings > Local REST API > Copy the credential
+
+The plugin runs on `https://127.0.0.1:27124` with a self-signed certificate.
+
+Test it:
+```bash
+curl -sk -H "Authorization: Bearer <obsidian-rest-token>" https://127.0.0.1:27124/
+```
+
+You should get a JSON response with vault info.
+
+---
+
+## Option A: mcp-obsidian (REST API based)
+
+Uses MarkusPfundstein's mcp-obsidian. Requires the Local REST API plugin running.
+
+Add to your `opencode.json` under the `mcp` key:
+
+```json
+{
+  "mcp": {
+    "obsidian-vault": {
+      "type": "local",
+      "command": ["uvx", "mcp-obsidian"],
+      "env": {
+        "OBSIDIAN_REST_TOKEN": "<obsidian-rest-token>",
+        "OBSIDIAN_HOST": "127.0.0.1",
+        "OBSIDIAN_PORT": "27124",
+        "NODE_TLS_REJECT_UNAUTHORIZED": "0"
+      }
+    }
+  }
+}
+```
+
+> [!warning] Security
+> `NODE_TLS_REJECT_UNAUTHORIZED: "0"` **disables TLS certificate verification process-wide** for the MCP server. It is required here because the Local REST API plugin uses a self-signed certificate. This is acceptable for `127.0.0.1` (localhost) connections only. Never use this setting for any non-loopback connection. If you are uncomfortable with the global TLS bypass, prefer **Option D (Obsidian CLI)** or **Option B (filesystem-based)** which avoid this entirely.
+
+Capabilities: read notes, write notes, search, patch frontmatter fields, append under headings.
+
+---
+
+## Option B: MCPVault (filesystem based)
+
+No Obsidian plugin needed. Reads the vault directory directly.
+
+Add to your `opencode.json` under the `mcp` key:
+
+```json
+{
+  "mcp": {
+    "obsidian-vault": {
+      "type": "local",
+      "command": ["npx", "-y", "@bitbonsai/mcpvault@latest", "/absolute/path/to/your/vault"]
+    }
+  }
+}
+```
+
+Replace `/absolute/path/to/your/vault` with the actual vault path.
+
+Tools available: `search_notes` (BM25), `read_note`, `create_note`, `update_note`, `get_frontmatter`, `update_frontmatter`, `list_all_tags`, `read_multiple_notes`.
+
+---
+
+## Option C: Direct REST API via curl
+
+No MCP needed. Use curl in bash throughout the session. See `rest-api.md` for all commands.
+
+---
+
+## Option D: Obsidian CLI (recommended for v1.12+)
+
+Obsidian shipped a native CLI in v1.12 (2026). It exposes vault operations directly to the terminal. No REST API plugin, no MCP server, no self-signed certs, no TLS workarounds. Use it through the Bash tool.
+
+**Check if available:**
+```bash
+which obsidian-cli 2>/dev/null && obsidian-cli --version
+# or, on flatpak:
+flatpak run md.obsidian.Obsidian --cli --version
+```
+
+**Common operations:**
+```bash
+# List all notes in a folder
+obsidian-cli list /path/to/vault wiki/
+
+# Read a note
+obsidian-cli read /path/to/vault wiki/index.md
+
+# Create or update a note
+obsidian-cli write /path/to/vault wiki/new-note.md < content.md
+
+# Search notes by content
+obsidian-cli search /path/to/vault "query term"
+```
+
+**Why prefer this**:
+- No plugin install required (CLI is built into Obsidian)
+- No MCP server process to manage
+- No TLS certificate bypass needed
+- Survives Obsidian restarts (no persistent connection)
+- Works identically across desktop and headless environments
+
+**When to use Options A/B/C instead**: If you need persistent semantic search, frontmatter patching, or are on Obsidian < v1.12.
+
+The `kepano/obsidian-skills` repo includes an `obsidian-cli` skill that wraps these commands as reusable patterns. Install it alongside this plugin for first-class CLI support.
+
+---
+
+## Use `--scope user`
+
+Both MCP options use the user-level `opencode.json` so the vault is available across all OpenCode projects, not just the one where you ran the command.
+
+---
+
+## Verification
+
+After setup:
+
+```bash
+# Verify the MCP config appears in your opencode.json
+grep -A 5 obsidian ~/.config/opencode/opencode.json
+```
+
+The OpenCode session will auto-connect to configured MCP servers. Check tool availability in-session to confirm.
+
+Then test: "List all notes in my wiki folder."
