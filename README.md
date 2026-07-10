@@ -53,7 +53,7 @@ bash scripts/install.sh
 
 ## What this is / is not
 
-**Is:** reusable skill bundle; OpenCode transport docs (API / MCP / CLI / fs).
+**Is:** wiki / Obsidian skill bundle vendored from upstream + RAFA packaging; OpenCode transport docs (API / MCP / CLI / fs).
 
 **Is not:** a private vault export; a substitute for your credentials; a promise that every remote-model call is safe by default.
 

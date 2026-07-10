@@ -57,7 +57,7 @@ bash scripts/install.sh
 
 ## 这是什么 / 不是什么
 
-**是：** 可复用 skill bundle；OpenCode transport 文档，含 API / MCP / CLI / fs。
+**是：** 上游 vendored + RAFA 打包的 wiki / Obsidian skill bundle；OpenCode transport 文档，含 API / MCP / CLI / fs。
 
 **不是：** 私有 vault 导出；凭证替代品；默认保证所有远程模型调用都安全。
 
