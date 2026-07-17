@@ -243,7 +243,9 @@ Do not silently overwrite old claims. Flag and let the user decide.
 
 ## What Not to Do
 
-- **Source files under `.raw/` are immutable.** Do not modify the files that users drop there (articles, transcripts, images). The `.raw/.manifest.json` delta tracker and its `address_map` (DragonScale Mechanism 2) are the only files under `.raw/` that `wiki-ingest` itself maintains. Treat every other file under `.raw/` as read-only source content.
+- **Source files under `.raw/` are immutable during processing.** Do not modify the files that users drop there (articles, transcripts, images). The `.raw/.manifest.json` delta tracker and its `address_map` (DragonScale Mechanism 2) are the only files under `.raw/` that `wiki-ingest` itself maintains. Treat every other file under `.raw/` as read-only source content.
+- **Post-ingest cleanup requires explicit user permission.** Immutability applies during processing only. After the user reviews the ingested result, source files MAY be removed from `.raw/` — but only when the user explicitly approves, never automatically. The vault-level policy (e.g., AGENTS.md) governs this cleanup lifecycle; `.raw/.manifest.json` itself is never deleted.
+- **Do not reduce high-value artifacts to summaries.** When a source's core value is a complete config, code listing, schema, or template (e.g., a full `config.yaml`), preserve it in full in the wiki — as a standalone artifact file or a complete code block in the page. Summaries provide navigation and context; they are never a substitute for the artifact itself.
 - Do not create duplicate pages. Always check the index and search before creating.
 - Do not skip the log entry. Every ingest must be recorded.
 - Do not skip the hot cache update. It is what keeps future sessions fast.

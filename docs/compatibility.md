@@ -14,6 +14,7 @@ Compatibility checks should reject:
 - legacy vendor/model product names used as agent identity (use Agent);
 - legacy model and turn-limit fields;
 - hardcoded workstation paths;
+- private vault absolute paths, employer/org-specific vault layouts, or other personal Mixed-wiki conventions;
 - live tokens or credentials.
 
 Run `scripts/lint-opencode-compat.sh` before publishing changes.

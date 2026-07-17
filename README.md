@@ -47,9 +47,12 @@ bash scripts/install.sh
 ├── wiki/
 ├── wiki-ingest/
 ├── wiki-query/
+├── wiki-ocr/
 ├── save/
 └── ...
 ```
+
+Notable skills include vault scaffold (`wiki`), ingest/query/lint, session filing (`save`), and document/OCR conversion (`wiki-ocr`).
 
 ## What this is / is not
 

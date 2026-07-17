@@ -51,9 +51,12 @@ bash scripts/install.sh
 ├── wiki/
 ├── wiki-ingest/
 ├── wiki-query/
+├── wiki-ocr/
 ├── save/
 └── ...
 ```
+
+代表性 skill：vault 脚手架（`wiki`）、ingest/query/lint、会话归档（`save`）、文档/OCR 转换（`wiki-ocr`）。
 
 ## 这是什么 / 不是什么
 

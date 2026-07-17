@@ -39,7 +39,7 @@ Before creating the session note, consult the vault's methodology mode via `pyth
 - **PARA**: `wiki/projects/inbox/<date>-<topic>.md` (user reroutes to specific projects)
 - **Zettelkasten**: `wiki/<ID>-session-<topic>.md` (timestamped ID becomes the filename prefix)
 
-If `.vault-meta/mode.json` is absent, the router returns mode=generic paths. **Important global rule**: per global AGENTS.md `/save` convention, sessions for cross-project work should file to `~/Documents/Obsidian Vault/sessions/` rather than the project's wiki. The mode router applies when filing to the project's own wiki, not when filing to the global personal vault.
+If `.vault-meta/mode.json` is absent, the router returns mode=generic paths. **Important global rule**: per global AGENTS.md `/save` convention, sessions for cross-project work should file to `<personal-vault>/sessions/` (path declared in project or global `AGENTS.md`) rather than the project's wiki. The mode router applies when filing to the project's own wiki, not when filing to the global personal vault.
 
 ## Concurrency (v1.7+)
 
@@ -81,7 +81,7 @@ If the user specifies a type, use that. If not, pick the best fit based on the c
 **Step 0: Decide the destination root.** Check in order:
 
 1. **User explicit override.** If the user said "save to this project's wiki" / "save to the personal vault" / a specific path, respect it.
-2. **Project AGENTS.md or global `~/.config/opencode/AGENTS.md` `/save` rule.** If either declares a personal-vault destination (e.g., `~/Documents/Obsidian Vault/`), that is the destination ROOT. The Note Type table below describes paths relative to whichever root is active. Append the new note to `<root>/log/ingest-log.md` at the top, in the format that file already uses.
+2. **Project AGENTS.md or global `~/.config/opencode/AGENTS.md` `/save` rule.** If either declares a personal-vault destination (e.g., `<personal-vault>/`), that is the destination ROOT. The Note Type table below describes paths relative to whichever root is active. Append the new note to `<root>/log/ingest-log.md` at the top, in the format that file already uses.
 3. **Default.** The project's own `wiki/` folder.
 
 The mode router (`python3 scripts/wiki-mode.py route session "<topic>"`) applies when filing into the project's own `wiki/`. When filing into a personal-vault root, use the canonical folders documented in that vault's AGENTS.md (commonly `sessions/`, `concepts/`, `sources/`) — the mode router is NOT consulted for personal-vault writes by default. Filename sanitization (slug + safe_name) still applies regardless of root: strip path separators, NUL bytes, control chars, leading dots/hyphens.

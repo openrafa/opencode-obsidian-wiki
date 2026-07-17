@@ -14,6 +14,7 @@
 - 把厂商 / 模型产品名当作 Agent 身份（应使用 Agent）；
 - 遗留 model / turn-limit 字段；
 - 硬编码本机路径；
+- 私有 vault 绝对路径、雇主/组织专属 vault 布局，或其它个人 Mixed-wiki 约定；
 - 真实 token 或凭证。
 
 发布改动前运行 `scripts/lint-opencode-compat.sh`。

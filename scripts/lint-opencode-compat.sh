@@ -17,7 +17,7 @@ patterns=(
   "${legacy_home}"
   "${legacy_md}"
   "${legacy_product}"
-  '/Users/''[A-Za-z0-9._-]+'
+  '/Users/[A-Za-z0-9._-]+/'
   'model:'' sonnet'
   'max''Turns'
   "${legacy_token}"
