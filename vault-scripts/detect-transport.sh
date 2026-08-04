@@ -9,8 +9,8 @@
 #   3. mcpvault    — Filesystem-backed MCP server (BM25 search; no Obsidian plugin).
 #   4. filesystem  — Direct Read/Write/Edit tools. Always available (ultimate floor).
 #
-# MCP auto-detection is deferred to a v1.7.x patch (calling `opencode mcp list` from
-# inside a running legacy-agent session has reentrancy concerns). For v1.7, we detect
+# MCP auto-detection is deferred to a v1.7.x patch (calling `claude mcp list` from
+# inside a running claude session has reentrancy concerns). For v1.7, we detect
 # CLI + filesystem and leave MCP fields as `{"present": null, "detection": "deferred"}`.
 # Users with MCP transports configured can either edit transport.json manually or
 # follow the legacy guidance in wiki/references/mcp-setup.md.
@@ -193,7 +193,7 @@ snapshot() {
     "filesystem": {
       "present": true,
       "vault_root": "${VAULT_ROOT}",
-      "note": "ultimate fallback; uses agent's Read/Write/Edit tools directly"
+      "note": "ultimate fallback; uses Claude's Read/Write/Edit tools directly"
     },
     "mcp_obsidian": {
       "present": null,

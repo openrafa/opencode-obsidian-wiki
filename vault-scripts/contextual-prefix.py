@@ -1,10 +1,33 @@
 #!/usr/bin/env python3
-"""contextual-prefix.py - chunk wiki pages and generate per-chunk contextual prefixes.
+"""contextual-prefix.py — chunk wiki pages and generate per-chunk contextual prefixes.
 
-This public OpenCode version defaults to an on-machine synthetic prefix. It keeps
-retrieval indexing useful without sending private wiki page bodies to a remote
-model. Projects that want remote contextualization should add their own explicit,
-reviewed provider adapter behind an opt-in flag.
+Implements the ingest-side of Anthropic's Sept 2024 Contextual Retrieval pattern
+(https://www.anthropic.com/news/contextual-retrieval). For each chunk of a wiki
+page, generates a 1-2 sentence prefix situating the chunk in its source. The
+prefixed text is what gets BM25-indexed and embedded, materially improving
+retrieval accuracy (Anthropic measured 35-49% failure reduction).
+
+Three-tier prefix generation (chosen per-run automatically):
+  1. If ANTHROPIC_API_KEY is set      → direct Anthropic API call (Haiku 4.5)
+                                         with prompt caching on the page body
+                                         (only when the body clears the ~16 KB
+                                         Haiku 4.5 cache floor; see
+                                         cache_control_for()).
+                                         ~$12 / 1000 docs per Anthropic figures.
+                                         REQUIRES --allow-egress (sends bodies off-machine).
+  2. Elif `claude` binary on PATH     → `claude -p` subprocess (uses CC subscription;
+                                         no API key needed; slower per call).
+                                         REQUIRES --allow-egress (subprocess egresses).
+  3. Else (default)                   → synthetic prefix from page frontmatter +
+                                         first paragraph (zero-cost floor; loses
+                                         most of the contextual benefit but BM25
+                                         and vector channels still work).
+
+Data-egress posture (v1.7.1+):
+  Tiers 1 and 2 send wiki page bodies off-machine. Both are GATED behind
+  --allow-egress (default off). Without the flag, pick_prefix_tier() always
+  returns "synthetic" regardless of env vars or claude binary presence.
+  Mirror of scripts/tiling-check.py:351 --allow-remote-ollama precedent.
 
 Chunk schema written to .vault-meta/chunks/<page-address>/chunk-NNN.json:
 {
@@ -14,19 +37,29 @@ Chunk schema written to .vault-meta/chunks/<page-address>/chunk-NNN.json:
   "chunk_index": 3,
   "raw_text": "...",
   "contextualized_text": "<prefix> <raw_text>",
-  "prefix_source": "synthetic" | "skipped",
+  "prefix_source": "anthropic-api" | "claude-cli" | "synthetic" | "skipped",
   "char_count": 487,
-  "body_hash": "sha256:...",
-  "page_body_hash": "sha256:...",
+  "body_hash": "sha256:...",     # of raw_text
+  "page_body_hash": "sha256:...", # of the WHOLE source page (for invalidation)
   "created_at": "2026-05-17T..."
 }
 
+Pages without an `address:` frontmatter field are still chunked (using a
+synthetic address derived from the path slug) so this tool works on v1.6 vaults
+without DragonScale Mechanism 2 enabled.
+
 Usage:
-  contextual-prefix.py PATH
-  contextual-prefix.py --all
-  contextual-prefix.py PATH --no-llm
-  contextual-prefix.py PATH --rebuild
-  contextual-prefix.py PATH --peek
+  contextual-prefix.py PATH               # process a single page
+  contextual-prefix.py --all              # process every wiki/*.md
+  contextual-prefix.py PATH --no-llm      # force synthetic-prefix tier 3
+  contextual-prefix.py PATH --rebuild     # ignore existing chunks
+  contextual-prefix.py PATH --peek        # print what would happen; write nothing
+
+Exit codes:
+  0 — success
+  2 — usage error
+  3 — page file missing or unreadable
+  4 — chunk dir creation failed
 """
 
 import argparse
@@ -34,7 +67,11 @@ import hashlib
 import json
 import os
 import re
+import shutil
+import subprocess
 import sys
+import urllib.error
+import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -47,6 +84,21 @@ CHUNK_TARGET_TOKENS = 500  # rough; we approximate via chars/4
 CHUNK_TARGET_CHARS = CHUNK_TARGET_TOKENS * 4
 CHUNK_OVERLAP_CHARS = 200
 
+ANTHROPIC_MODEL = "claude-haiku-4-5-20251001"
+ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
+ANTHROPIC_TIMEOUT_SEC = 30
+CLAUDE_CLI_TIMEOUT_SEC = 60
+
+# Anthropic prompt caching ignores any cached prefix below the model's minimum
+# cacheable size — 4,096 tokens for Haiku 4.5 (verified against the prompt-caching
+# docs, 2026-05). At ~4 chars/token that is ~16 KB. We attach cache_control only
+# when the body clears this floor so the marker reflects reality: below the floor
+# the API treats it as a silent no-op. The per-call cache telemetry in
+# anthropic_api_prefix() is what actually measures hit rate. The check counts the
+# body only — a deliberately conservative ~370-char underestimate that ignores the
+# system_msg + <page> wrapper also inside the cached prefix — so near the boundary
+# it errs toward not-marking, never toward a wrongly-attached marker.
+HAIKU_CACHE_MIN_CHARS = 16384  # 4096 tokens * 4 chars/token
 
 EXIT_OK = 0
 EXIT_USAGE = 2
@@ -137,13 +189,156 @@ def synthetic_prefix(fm, body, chunk_text):
     return f"This passage is from the wiki page \"{title}\". The page opens: {first}"
 
 
+def cache_control_for(page_body):
+    """Ephemeral cache_control dict when the page body clears the Haiku cache
+    floor, else None. Pure function so the floor decision is unit-testable
+    without the network (the API call itself stays egress-gated).
+    """
+    if len(page_body) >= HAIKU_CACHE_MIN_CHARS:
+        return {"type": "ephemeral"}
+    return None
+
+
+def anthropic_api_prefix(api_key, page_title, page_body, chunk_text):
+    """Tier-1 prefix: direct Anthropic API call, Haiku, prompt-cached page body.
+
+    The page body is the stable prefix shared by every chunk of a page, so it
+    goes in `system` behind a cache breakpoint and the variable chunk goes in
+    `messages`. Cache reads only land because chunks are processed sequentially
+    (chunk 0 warms the prefix) — see the loop note in process_page().
+    """
+    system_msg = (
+        "You are a retrieval-augmentation assistant. Given a wiki page and one "
+        "chunk extracted from it, write a single short sentence (under 35 words) "
+        "that situates the chunk within the page's scope and topic. Output only "
+        "the sentence — no prefix, no quotation marks, no commentary."
+    )
+    page_block = {
+        "type": "text",
+        "text": f"<page title=\"{page_title}\">\n{page_body}\n</page>",
+    }
+    cc = cache_control_for(page_body)
+    if cc:
+        page_block["cache_control"] = cc
+    payload = {
+        "model": ANTHROPIC_MODEL,
+        "max_tokens": 100,
+        "system": [
+            {"type": "text", "text": system_msg},
+            page_block,
+        ],
+        "messages": [
+            {
+                "role": "user",
+                "content": (
+                    "Write the single contextualizing sentence for this chunk:\n\n"
+                    f"<chunk>\n{chunk_text}\n</chunk>"
+                ),
+            }
+        ],
+    }
+    body = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        ANTHROPIC_API_URL,
+        data=body,
+        headers={
+            "Content-Type": "application/json",
+            "x-api-key": api_key,
+            "anthropic-version": "2023-06-01",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=ANTHROPIC_TIMEOUT_SEC) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            # Cache telemetry: integer token counts only, never page content, so
+            # the data-egress posture holds. Confirms whether the body cache is
+            # actually firing given the Haiku floor (wrote>0 on chunk 0, read>0
+            # on later chunks of the same page).
+            usage = data.get("usage", {})
+            log(f"  cache: wrote={usage.get('cache_creation_input_tokens', 0)} "
+                f"read={usage.get('cache_read_input_tokens', 0)} tok")
+            for block in data.get("content", []):
+                if block.get("type") == "text":
+                    return block["text"].strip().splitlines()[0]
+    except (urllib.error.URLError, json.JSONDecodeError, KeyError) as e:
+        log(f"  anthropic-api call failed: {e}")
+        return None
+    return None
+
+
+def claude_cli_prefix(page_title, page_body, chunk_text):
+    """Tier-2 prefix: `claude -p` subprocess (uses CC subscription, no API key)."""
+    prompt = (
+        f"Wiki page \"{page_title}\":\n\n"
+        f"---\n{page_body[:4000]}\n---\n\n"
+        f"Chunk:\n<chunk>\n{chunk_text}\n</chunk>\n\n"
+        "Write one short sentence (under 35 words) situating this chunk within "
+        "the page's scope. Output only the sentence."
+    )
+    try:
+        result = subprocess.run(
+            ["claude", "-p", prompt],
+            capture_output=True,
+            text=True,
+            timeout=CLAUDE_CLI_TIMEOUT_SEC,
+            check=False,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return result.stdout.strip().splitlines()[0]
+        log(f"  claude-cli rc={result.returncode}: {result.stderr.strip()[:200]}")
+    except (subprocess.TimeoutExpired, FileNotFoundError) as e:
+        log(f"  claude-cli call failed: {e}")
+    return None
+
+
 def pick_prefix_tier(force_synthetic, allow_egress=False):
-    """The public portable version always uses synthetic prefixes."""
+    """Choose the contextual-prefix generation tier.
+
+    Without allow_egress=True, ALWAYS returns "synthetic" regardless of
+    env vars or claude binary availability. This is the v1.7.1 data-egress
+    guard: tiers 1 (Anthropic API) and 2 (claude CLI subprocess) both send
+    wiki page bodies off-machine, so they require explicit user consent via
+    the --allow-egress flag at the CLI layer.
+
+    Mirrors scripts/tiling-check.py:351 --allow-remote-ollama default-deny.
+    """
+    if force_synthetic or not allow_egress:
+        return "synthetic"
+    if os.environ.get("ANTHROPIC_API_KEY"):
+        return "anthropic-api"
+    if shutil.which("claude"):
+        return "claude-cli"
     return "synthetic"
 
 
 def generate_prefix(tier, fm, body, chunk_text):
+    """Asymmetric fallback by design:
+      - tier="anthropic-api" → on failure, try claude-cli (subprocess,
+        free) before synthetic. The API is the user's stated preference,
+        and claude-cli is the closer-in-quality fallback.
+      - tier="claude-cli"    → on failure, go straight to synthetic. The
+        user has either no API key or has not opted into one; climbing
+        back to the API would silently spend money they did not authorize.
+      - tier="synthetic"     → always synthetic.
+    """
     title = fm.get("title") or "(untitled)"
+    if tier == "anthropic-api":
+        result = anthropic_api_prefix(
+            os.environ["ANTHROPIC_API_KEY"], title, body, chunk_text
+        )
+        if result:
+            return result, "anthropic-api"
+        if shutil.which("claude"):
+            result = claude_cli_prefix(title, body, chunk_text)
+            if result:
+                return result, "claude-cli"
+        return synthetic_prefix(fm, body, chunk_text), "synthetic"
+    if tier == "claude-cli":
+        result = claude_cli_prefix(title, body, chunk_text)
+        if result:
+            return result, "claude-cli"
+        return synthetic_prefix(fm, body, chunk_text), "synthetic"
     return synthetic_prefix(fm, body, chunk_text), "synthetic"
 
 
@@ -178,8 +373,8 @@ def process_page(page_path, force_synthetic=False, rebuild=False, peek=False,
 
     written = []
     skipped = 0
-    # Keep this loop sequential. The tier-1 published path caches the page body;
-    # a cache entry is only readable after the first response begins (published
+    # Keep this loop sequential. The tier-1 Anthropic path caches the page body;
+    # a cache entry is only readable after the first response begins (Anthropic
     # prompt-caching concurrency rule), so chunk 0 warms the prefix and chunks
     # 1..N read it. Parallelizing here would silently zero every cache read.
     for idx, raw in enumerate(chunks):
@@ -250,7 +445,7 @@ def main():
     parser.add_argument("--no-llm", action="store_true",
                         help="Force tier-3 synthetic prefix (skip LLM calls).")
     parser.add_argument("--allow-egress", action="store_true",
-                        help="Allow tier-1 (remote model API) or tier-2 (legacy-agent CLI "
+                        help="Allow tier-1 (Anthropic API) or tier-2 (claude CLI "
                              "subprocess) prefix generation. Without this flag, page "
                              "bodies stay on-machine and only the tier-3 synthetic "
                              "prefix is used. Mirror of tiling-check.py's "

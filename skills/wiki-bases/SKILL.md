@@ -1,14 +1,14 @@
 ---
-name: obsidian-bases
+name: wiki-bases
 description: "Create and edit Obsidian Bases (.base files): Obsidian's native database layer for dynamic tables, card views, list views, filters, formulas, and summaries over vault notes. Triggers on: create a base, add a base file, obsidian bases, base view, filter notes, formula, database view, dynamic table, task tracker base, reading list base."
 allowed-tools: Read Write
 ---
 
-# obsidian-bases: Obsidian's Database Layer
+# wiki-bases: Obsidian's Database Layer
 
 Obsidian Bases (launched 2025) turns vault notes into queryable, dynamic views. Tables, cards, lists, maps. Defined in `.base` files. No plugin required; it is a core Obsidian feature.
 
-**Substrate preference (v1.7+)**: This skill is a self-contained fallback. **Prefer `kepano/obsidian-skills`** as the authoritative substrate. Its `obsidian-bases` skill is the canonical reference for Bases YAML, formulas, and view definitions. If you see an `obsidian-bases` skill available without the `opencode-wiki:` namespace, that is kepano's version: use it. The reference below is provided so the plugin remains functional when kepano's marketplace is not installed. Install from: https://github.com/kepano/obsidian-skills. Official Bases docs: https://help.obsidian.md/bases/syntax
+**Substrate preference (v1.7+)**: This skill is a self-contained fallback. **Prefer `kepano/obsidian-skills`** as the authoritative substrate — its `obsidian-bases` skill is the canonical reference for Bases YAML, formulas, and view definitions. If you see an `obsidian-bases` skill available without the `claude-obsidian:` namespace, that is kepano's version: use it. The reference below is provided so the plugin remains functional when kepano's marketplace is not installed. Install from: https://github.com/kepano/obsidian-skills. Official Bases docs: https://help.obsidian.md/bases/syntax
 
 ---
 
@@ -296,7 +296,7 @@ Store `.base` files in `wiki/meta/` for vault dashboards:
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|

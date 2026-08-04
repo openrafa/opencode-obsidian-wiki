@@ -1,14 +1,14 @@
 ---
 name: wiki-cli
-description: "Default vault-mutation transport for opencode-wiki v1.7+. Wraps the Obsidian CLI, shipped with Obsidian 1.12+, as the preferred way to read, write, search, and modify vault notes from agents. No MCP server, no REST API plugin, no TLS workarounds. Falls back to direct filesystem Read/Write/Edit when the CLI is unavailable. Triggers on: wiki-cli, obsidian cli, obsidian read, obsidian write, obsidian search, daily note, obsidian create, obsidian append, vault transport, which transport, transport detection, obsidian command line."
+description: "Default vault-mutation transport for claude-obsidian v1.7+. Wraps the Obsidian CLI (Obsidian 1.12+) as the preferred way to read, write, search, and modify vault notes from Claude — no MCP server, no REST API plugin, no TLS workarounds. Falls back to direct filesystem Read/Write/Edit when the CLI is unavailable. Triggers on: wiki-cli, obsidian cli, obsidian read, obsidian write, obsidian search, daily note, obsidian create, obsidian append, vault transport, which transport, transport detection, obsidian command line."
 allowed-tools: Read Bash
 ---
 
 # wiki-cli: Default Transport Layer
 
-opencode-wiki v1.7+ standardizes on the **Obsidian CLI**, shipped with Obsidian 1.12, as the preferred transport for all vault mutations on desktop. This skill is the recipe reference for using it.
+claude-obsidian v1.7+ standardizes on the **Obsidian CLI** (shipped with Obsidian 1.12) as the preferred transport for all vault mutations on desktop. This skill is the recipe reference for using it.
 
-**Substrate preference (v1.7+)**: This skill is a self-contained fallback. **Prefer `kepano/obsidian-skills`** by Steph Ango, Obsidian CEO, as the authoritative substrate. Its `obsidian-cli` skill is the canonical CLI reference for any Agent-Skills runtime. If you see an `obsidian-cli` skill available without the `opencode-wiki:` namespace, that is kepano's version: use it. The recipes below are provided so opencode-wiki remains functional when kepano's marketplace is not installed. Install from: https://github.com/kepano/obsidian-skills.
+**Substrate preference (v1.7+)**: This skill is a self-contained fallback. **Prefer `kepano/obsidian-skills`** (by Steph Ango, Obsidian CEO) as the authoritative substrate — its `obsidian-cli` skill is the canonical CLI reference for any Agent-Skills runtime. If you see an `obsidian-cli` skill available without the `claude-obsidian:` namespace, that is kepano's version: use it. The recipes below are provided so claude-obsidian remains functional when kepano's marketplace is not installed. Install from: https://github.com/kepano/obsidian-skills.
 
 ---
 
@@ -17,13 +17,13 @@ opencode-wiki v1.7+ standardizes on the **Obsidian CLI**, shipped with Obsidian 
 | Concern | MCP (Options A/B) | Obsidian CLI |
 |---|---|---|
 | Install | Local REST API plugin + MCP server config | Built into Obsidian 1.12+ |
-| Auth | credential + TLS bypass (`NODE_TLS_REJECT_UNAUTHORIZED=0`) | None — direct subprocess |
+| Auth | API key + TLS bypass (`NODE_TLS_REJECT_UNAUTHORIZED=0`) | None — direct subprocess |
 | Latency | HTTP round-trip per call | In-process binary |
 | Failure mode | Plugin disabled → silent breakage | Binary missing → loud `command -v` failure |
-| Reentrancy | Self-MCP-calls inside agent session can deadlock | Pure subprocess, safe |
+| Reentrancy | Self-MCP-calls inside Claude session can deadlock | Pure subprocess, safe |
 | Mobile / headless | Limited | Limited (CLI is desktop-only too) |
 
-CLI loses to MCP on exactly one axis: it only works on machines where Obsidian itself is installed. For headless servers and mobile, fall through to the next transport.
+CLI loses to MCP on exactly one axis: it only works on machines where Obsidian itself is installed. For headless servers and mobile, fall through to the next transport in the chain.
 
 ---
 
@@ -50,7 +50,7 @@ This writes `.vault-meta/transport.json` with the schema:
 }
 ```
 
-**Read this file before any non-trivial vault mutation.** Skills that need to read or write should consult `preferred` and pick the corresponding transport. The decision tree is at `wiki/references/transport-fallback.md`.
+**Read this file before any non-trivial vault mutation.** Skills that need to read or write should consult `preferred` and pick the corresponding transport. The decision tree lives at `wiki/references/transport-fallback.md`.
 
 Refresh detection with `--force` after installing/removing the Obsidian CLI:
 ```bash
@@ -147,7 +147,7 @@ obsidian-cli bookmarks "$VAULT"
 - **Mobile (iOS Share extension)**: filesystem write into `.raw/` is the only path; CLI is desktop-only.
 - **CI / headless ingest jobs**: filesystem with manual frontmatter parsing.
 - **Cross-vault operations**: CLI binds to one vault root per invocation; for federation, fall back to filesystem walks.
-- **Live edits while Obsidian is mid-save**: rare race. CLI handles it correctly, but in pathological cases the v1.7 `wiki-lock.sh` advisory locks should be acquired first. See [skills/wiki-fold/](../wiki-fold/SKILL.md) and `agents/wiki-ingest.md`.
+- **Live edits while Obsidian is mid-save**: rare race; CLI handles it correctly but in pathological cases the v1.7 `wiki-lock.sh` advisory locks (see [skills/wiki-fold/](../wiki-fold/SKILL.md) and `agents/wiki-ingest.md`) should be acquired first.
 
 ---
 
@@ -162,7 +162,7 @@ obsidian-cli bookmarks "$VAULT"
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|

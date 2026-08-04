@@ -17,8 +17,8 @@ v1.7 strategy (in preference order, automatically chosen at runtime):
 
 Future v1.7.x upgrade paths:
   - Cross-encoder reranker (sentence-transformers BGE-base) if installed
-  - Cohere Rerank API if COHERE_RERANK_TOKEN set
-  - Voyage Rerank API if VOYAGE_RERANK_TOKEN set
+  - Cohere Rerank API if COHERE_API_KEY set
+  - Voyage Rerank API if VOYAGE_API_KEY set
 
 Mirrors the localhost-only OLLAMA_URL guard from scripts/tiling-check.py:
 remote ollama endpoints require --allow-remote-ollama because page bodies

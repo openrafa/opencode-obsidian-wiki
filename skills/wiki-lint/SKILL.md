@@ -227,7 +227,7 @@ Before validating anything, classify the page:
 - Counter drift (observed counter >= peek): **error**.
 - Address-map mismatch: **error**.
 
-Lint only observes. Do not auto-assign missing addresses during lint. Assignment is `wiki-ingest`'s responsibility.
+Lint only observes. Do NOT auto-assign missing addresses during lint. Assignment is `wiki-ingest`'s responsibility only.
 
 ### Output section in the lint report
 
@@ -378,7 +378,7 @@ Needs review before fixing:
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|

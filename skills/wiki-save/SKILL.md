@@ -1,5 +1,5 @@
 ---
-name: save
+name: wiki-save
 description: >
   Save the current conversation, answer, or insight into the Obsidian wiki vault as a
   structured note. Analyzes the chat, determines the right note type, creates frontmatter,
@@ -12,7 +12,7 @@ allowed-tools: Read Write Edit Glob Grep
 
 # save: File Conversations Into the Wiki
 
-Good answers and insights should not disappear into chat history. This skill takes what was just discussed and files it as a permanent wiki page.
+Good answers and insights shouldn't disappear into chat history. This skill takes what was just discussed and files it as a permanent wiki page.
 
 The wiki compounds. Save often.
 
@@ -39,7 +39,7 @@ Before creating the session note, consult the vault's methodology mode via `pyth
 - **PARA**: `wiki/projects/inbox/<date>-<topic>.md` (user reroutes to specific projects)
 - **Zettelkasten**: `wiki/<ID>-session-<topic>.md` (timestamped ID becomes the filename prefix)
 
-If `.vault-meta/mode.json` is absent, the router returns mode=generic paths. **Important global rule**: per global AGENTS.md `/save` convention, sessions for cross-project work should file to `<personal-vault>/sessions/` (path declared in project or global `AGENTS.md`) rather than the project's wiki. The mode router applies when filing to the project's own wiki, not when filing to the global personal vault.
+If `.vault-meta/mode.json` is absent, the router returns mode=generic paths. **Important global rule**: per global AGENTS.md `/save` convention, sessions for cross-project work should still file to `~/Documents/Obsidian Vault/sessions/` rather than the project's wiki. The mode router applies when filing to the project's own wiki/, not when filing to the global personal vault.
 
 ## Concurrency (v1.7+)
 
@@ -81,7 +81,7 @@ If the user specifies a type, use that. If not, pick the best fit based on the c
 **Step 0: Decide the destination root.** Check in order:
 
 1. **User explicit override.** If the user said "save to this project's wiki" / "save to the personal vault" / a specific path, respect it.
-2. **Project AGENTS.md or global `~/.config/opencode/AGENTS.md` `/save` rule.** If either declares a personal-vault destination (e.g., `<personal-vault>/`), that is the destination ROOT. The Note Type table below describes paths relative to whichever root is active. Append the new note to `<root>/log/ingest-log.md` at the top, in the format that file already uses.
+2. **Project AGENTS.md or global `~/.config/opencode/AGENTS.md` `/save` rule.** If either declares a personal-vault destination (e.g., `~/Documents/Obsidian Vault/`), that is the destination ROOT. The Note Type table below describes paths relative to whichever root is active. Append the new note to `<root>/log/ingest-log.md` at the top, in the format that file already uses.
 3. **Default.** The project's own `wiki/` folder.
 
 The mode router (`python3 scripts/wiki-mode.py route session "<topic>"`) applies when filing into the project's own `wiki/`. When filing into a personal-vault root, use the canonical folders documented in that vault's AGENTS.md (commonly `sessions/`, `concepts/`, `sources/`) — the mode router is NOT consulted for personal-vault writes by default. Filename sanitization (slug + safe_name) still applies regardless of root: strip path separators, NUL bytes, control chars, leading dots/hyphens.
@@ -142,7 +142,7 @@ status: active
 ## Writing Style
 
 - Declarative, present tense. Write the knowledge, not the conversation.
-- Not: "The user asked about X and agent explained..."
+- Not: "The user asked about X and Claude explained..."
 - Yes: "X works by doing Y. The key insight is Z."
 - Include all relevant context. Future sessions should be able to read this page cold.
 - Link every mentioned concept, entity, or wiki page with wikilinks.
@@ -171,7 +171,7 @@ If it's already in the wiki, update the existing page instead of creating a dupl
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|

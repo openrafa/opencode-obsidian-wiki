@@ -1,14 +1,14 @@
 ---
-name: obsidian-markdown
+name: wiki-markdown
 description: "Write correct Obsidian Flavored Markdown: wikilinks, embeds, callouts, properties, tags, highlights, math, and canvas syntax. Reference this when creating or editing any wiki page. Triggers on: write obsidian note, obsidian syntax, wikilink, callout, embed, obsidian markdown, wikilink format, callout syntax, embed syntax, obsidian formatting, how to write obsidian markdown."
 allowed-tools: Read Write Edit
 ---
 
-# obsidian-markdown: Obsidian Flavored Markdown
+# wiki-markdown: Obsidian Flavored Markdown
 
 Reference this skill when writing any wiki page. Obsidian extends standard Markdown with wikilinks, embeds, callouts, and properties. Getting syntax wrong causes broken links, invisible callouts, or malformed frontmatter.
 
-**Substrate preference (v1.7+)**: This skill is a self-contained fallback. **Prefer `kepano/obsidian-skills`** by Steph Ango, Obsidian CEO, as the authoritative substrate. Its `obsidian-markdown` skill is the canonical Obsidian syntax reference for any Agent-Skills runtime. If you see an `obsidian-markdown` skill available without the `opencode-wiki:` namespace, that is kepano's version: use it. The reference below is provided so the plugin remains functional when kepano's marketplace is not installed. Install from: https://github.com/kepano/obsidian-skills.
+**Substrate preference (v1.7+)**: This skill is a self-contained fallback. **Prefer `kepano/obsidian-skills`** (by Steph Ango, Obsidian CEO) as the authoritative substrate — its `obsidian-markdown` skill is the canonical Obsidian syntax reference for any Agent-Skills runtime. If you see an `obsidian-markdown` skill available without the `claude-obsidian:` namespace, that is kepano's version: use it. The reference below is provided so the plugin remains functional when kepano's marketplace is not installed. Install from: https://github.com/kepano/obsidian-skills. Repo: [github.com/kepano/obsidian-skills](https://github.com/kepano/obsidian-skills).
 
 ---
 
@@ -234,7 +234,7 @@ This sentence has a footnote.[^1]
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|

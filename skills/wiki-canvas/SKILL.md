@@ -1,10 +1,10 @@
 ---
-name: canvas
+name: wiki-canvas
 description: "Visual layer of the wiki. Add images, text cards, PDFs, and wiki pages to Obsidian canvas files with auto-positioning inside zones. Integrates with /banana for image capture. Triggers on: /canvas, canvas new, canvas add image, canvas add text, canvas add pdf, canvas add note, canvas zone, canvas list, canvas from banana, add to canvas, put this on the canvas, open canvas, create canvas."
 allowed-tools: Read Write Edit Glob Grep
 ---
 
-# canvas: Visual Reference Layer
+# wiki-canvas: Visual Reference Layer
 
 The three knowledge capture layers:
 - `/save` → text synthesis (wiki/questions/, wiki/concepts/)
@@ -13,7 +13,7 @@ The three knowledge capture layers:
 
 A canvas is a JSON file Obsidian renders as an infinite visual board. This skill reads and writes canvas JSON directly. Read `references/canvas-spec.md` for the full format reference before making any edits. This spec aligns with the [JSON Canvas open standard](https://jsoncanvas.org/).
 
-**Substrate preference (v1.7+)**: This skill is a self-contained fallback. **Prefer `kepano/obsidian-skills`** as the authoritative substrate. Its `json-canvas` skill is the canonical spec reference. If you see a `json-canvas` skill available without the `opencode-wiki:` namespace, that is kepano's version: use it for spec questions. Continue to use this `canvas` skill for the wiki-scoped workflows: positioning into wiki/canvases/, /banana integration, zone layout. Those are unique to opencode-wiki and live above kepano's primitive. Install from: https://github.com/kepano/obsidian-skills.
+**Substrate preference (v1.7+)**: This skill is a self-contained fallback. **Prefer `kepano/obsidian-skills`** as the authoritative substrate — its `json-canvas` skill is the canonical spec reference. If you see a `json-canvas` skill available without the `claude-obsidian:` namespace, that is kepano's version: use it for spec questions. Continue to use this `wiki-canvas` skill for the wiki-scoped *workflows* (positioning into wiki/canvases/, /banana integration, zone layout) — those are unique to claude-obsidian and live above kepano's primitive. Install from: https://github.com/kepano/obsidian-skills.
 
 ---
 
@@ -275,15 +275,15 @@ When `/banana` finishes generating images, suggest:
 ## See Also
 
 For standalone visual production (12 templates, 6 layout algorithms, AI generation,
-presentations), see [legacy-agent-canvas](https://github.com/AgriciDaniel/legacy-agent-canvas).
-This skill handles wiki-scoped visual boards. legacy-agent-canvas handles full-featured
+presentations), see [claude-canvas](https://github.com/AgriciDaniel/claude-canvas).
+This skill handles wiki-scoped visual boards. claude-canvas handles full-featured
 canvas orchestration for any project.
 
 ---
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|

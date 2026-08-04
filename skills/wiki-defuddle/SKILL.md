@@ -1,16 +1,16 @@
 ---
-name: defuddle
-description: "Strip clutter from web pages before ingesting into the wiki. Removes ads, navigation, headers, footers, and boilerplate, outputting clean readable markdown that saves 40-60% tokens. Triggers on: defuddle, clean this page, strip this url, fetch and clean, clean web content before ingesting, strip ads, remove clutter, clean URL content, readable markdown from URL."
+name: wiki-defuddle
+description: "Strip clutter from web pages before ingesting into the wiki. Removes ads, navigation, headers, footers, and boilerplate: leaving clean readable markdown that saves 40-60% tokens. Triggers on: defuddle, clean this page, strip this url, fetch and clean, clean web content before ingesting, strip ads, remove clutter, clean URL content, readable markdown from URL."
 allowed-tools: Read Bash
 ---
 
-# defuddle: Web Page Cleaner
+# wiki-defuddle: Web Page Cleaner
 
 Defuddle extracts the meaningful content from a web page and drops everything else: ads, cookie banners, nav bars, related articles, footers, social sharing buttons. What remains is the article body as clean markdown.
 
 Use this before any URL ingestion. It is optional but strongly recommended. It cuts token usage by 40-60% on typical web articles and produces cleaner wiki pages.
 
-**Substrate note (v1.7+)**: Unlike `obsidian-markdown`, `obsidian-bases`, and `json-canvas` where we defer to kepano/obsidian-skills as upstream, the `defuddle` skill is written for opencode-wiki. Kepano's marketplace does not ship a defuddle skill. The underlying `defuddle-cli` is independent of either marketplace and lives at [github.com/kepano/defuddle](https://github.com/kepano/defuddle).
+**Substrate note (v1.7+)**: Unlike `wiki-markdown` / `wiki-bases` / `json-canvas` (where we defer to kepano/obsidian-skills as upstream), the `wiki-defuddle` skill is original to claude-obsidian — kepano's marketplace does not ship a defuddle skill. This is the canonical version. The underlying `defuddle-cli` is independent of either marketplace and lives at [github.com/kepano/defuddle](https://github.com/kepano/defuddle).
 
 ---
 
@@ -89,7 +89,7 @@ To manually clean a page and save before ingesting:
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|

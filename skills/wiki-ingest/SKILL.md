@@ -7,7 +7,7 @@ description: "Ingest sources into the Obsidian wiki vault. Reads a source, extra
 
 Read the source. Write the wiki. Cross-reference everything. A single source typically touches 8-15 wiki pages.
 
-**Syntax standard**: Write all Obsidian Markdown using proper Obsidian Flavored Markdown. Wikilinks as `[[Note Name]]`, callouts as `> [!type] Title`, embeds as `![[file]]`, properties as YAML frontmatter. If the kepano/obsidian-skills plugin is installed, prefer its canonical obsidian-markdown skill for syntax reference. Otherwise, follow the guidance in this skill.
+**Syntax standard**: Write all Obsidian Markdown using proper Obsidian Flavored Markdown. Wikilinks as `[[Note Name]]`, callouts as `> [!type] Title`, embeds as `![[file]]`, properties as YAML frontmatter. If the kepano/obsidian-skills plugin is installed, prefer its canonical obsidian-markdown skill for Obsidian syntax reference. Otherwise, follow the guidance in this skill.
 
 ---
 
@@ -69,7 +69,7 @@ Properties:
 - **Per-file granularity.** Locks key on `sha1(<vault-relative-path>)`; concurrent writes to DIFFERENT pages run in parallel.
 - **Age-based staleness.** Default `STALE_AFTER_SEC=60`. A crashed holder unblocks in ≤60 seconds without manual intervention. See `scripts/wiki-lock.sh` header for the full semantics.
 - **Cross-process release.** Release is `rm -f` (no PID match required). Skill authors are trusted to release locks they acquire; cross-skill release is allowed by design (a janitor running `wiki-lock clear-stale --max-age 0` is the canonical recovery path).
-- **The write-hook now defers `git add` if any locks are currently held**, so the auto-commit does not fire mid-ingest and produce torn commits. See `hooks/hooks.json`.
+- **The PostToolUse hook now defers `git add` if any locks are currently held**, so the auto-commit doesn't fire mid-ingest and produce torn commits. See `hooks/hooks.json`.
 
 `wiki-lock` is unconditional in v1.7+ — there is no feature gate, no fallback. Skills that don't acquire locks are racing against any other writer. The script is in core, not opt-in.
 
@@ -140,7 +140,7 @@ Trigger: user passes an image file path (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp
 
 Steps:
 
-1. **Read** the image file using the Read tool. agent can process images natively.
+1. **Read** the image file using the Read tool. Claude can process images natively.
 2. **Describe** the image contents: extract all text (OCR), identify key concepts, entities, diagrams, and data visible in the image.
 3. **Save** the description to `.raw/images/[slug]-[YYYY-MM-DD].md`:
    ```markdown
@@ -291,7 +291,7 @@ ADDR=$(./scripts/allocate-address.sh)
 # ADDR is now e.g. "c-000042"; counter is already incremented
 ```
 
-**CRITICAL**: never use the Write or Edit tool on `.vault-meta/address-counter.txt`. That would fire the write-hook hook, which runs `git add wiki/ .raw/` and can accidentally commit unrelated pending wiki changes under a generic message. Counter mutation is **only** permitted through the helper script (Bash tool).
+**CRITICAL**: never use the Write or Edit tool on `.vault-meta/address-counter.txt`. That would fire the PostToolUse hook, which runs `git add wiki/ .raw/` and can accidentally commit unrelated pending wiki changes under a generic message. Counter mutation is **only** permitted through the helper script (Bash tool).
 
 ### Helper modes
 
@@ -335,7 +335,7 @@ On a page rename, the skill must update the `address_map` key (old path -> new p
 
 ### Concurrency policy
 
-- **Single-writer only** in Phase 2. Do not run parallel ingests from multiple agent sessions or sub-agents that assign addresses. The `flock` in the helper prevents counter corruption but does not serialize page writes themselves.
+- **Single-writer only** in Phase 2. Do not run parallel ingests from multiple Claude sessions or sub-agents that assign addresses. The `flock` in the helper prevents counter corruption but does not serialize page writes themselves.
 - Sub-agents (codex, general-purpose) that are dispatched for research or review MUST NOT call the allocator. They are read-only in this respect.
 - Multi-writer support is a deferred feature.
 
@@ -347,7 +347,7 @@ Assign addresses sequentially during single-source-ingest for each source. Do no
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|

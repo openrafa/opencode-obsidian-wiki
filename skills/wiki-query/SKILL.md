@@ -24,7 +24,7 @@ Full decision tree: [`wiki/references/transport-fallback.md`](../../wiki/referen
 
 ## Retrieval (v1.7+)
 
-If `wiki-retrieve` is feature-detected, Standard and Deep modes consult it before the legacy hot→index→drill chain:
+If `wiki-retrieve` is feature-detected — `[ -x scripts/retrieve.py ] && [ -d .vault-meta/chunks ] && [ -f .vault-meta/bm25/index.json ]` — Standard and Deep modes consult it BEFORE the legacy hot→index→drill chain:
 
 ```bash
 python3 scripts/retrieve.py "<the user's question verbatim>" --top 5
@@ -32,7 +32,7 @@ python3 scripts/retrieve.py "<the user's question verbatim>" --top 5
 
 Output is JSON with a `candidates` array. Each candidate has `absolute_path` to the source page, a `snippet`, and `bm25_score` + `rerank_score`. Read the cited pages (using the transport selector from §Transport above) and synthesize with chunk-level citation.
 
-If `retrieve.py` exits 10 (feature not provisioned), or any pipeline step errors, fall back to the v1.6 legacy read order described in the Standard/Deep workflows below. No user-visible breakage.
+If `retrieve.py` exits 10 (feature not provisioned), or any step in the pipeline errors, fall back to the v1.6 legacy read order described in the Standard/Deep workflows below — no user-visible breakage.
 
 Quick mode always skips retrieval (hot.md only — keeps the ~1,500 token budget intact).
 
@@ -197,7 +197,7 @@ If the question cannot be answered from the wiki:
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|
@@ -210,4 +210,4 @@ When working on this skill, apply the 10-principle loop. See [`skills/think/SKIL
 | 7 | FEEL | Cite specific pages, not vague references. Future-me wants traceability back to the source page. |
 | 8 | ACCEPT | When the wiki doesn't have the answer, say so explicitly. Don't fabricate from training data. |
 | 9 | CREATE | The answer with citations + an offer to file the answer if it's worth keeping. |
-| 10 | GROW | Questions the wiki can't answer are content gaps — log them as autoresearch inputs. |
+| 10 | GROW | Questions the wiki can't answer are content gaps — log them as wiki-autoresearch inputs. |

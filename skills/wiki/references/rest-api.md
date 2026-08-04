@@ -5,7 +5,7 @@ Use these commands when MCP tools are not available. Requires the Local REST API
 Set your key before running any command:
 ```bash
 API="https://127.0.0.1:27124"
-KEY="<obsidian-rest-token>"
+KEY="your-api-key-here"
 ```
 
 ---

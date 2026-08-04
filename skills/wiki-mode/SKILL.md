@@ -1,16 +1,16 @@
 ---
 name: wiki-mode
-description: "Methodology modes for the Compound Vault. Lets the vault declare an organizational style (LYT, PARA, Zettelkasten, or Generic) that wiki-ingest, save, and autoresearch consult before filing new pages. Reads `.vault-meta/mode.json`; defaults to `generic` when absent. No other Agent+Obsidian competitor ships methodology support as a first-class skill. Triggers on: set vault mode, switch to PARA, use LYT, what's my vault mode, zettelkasten setup, wiki mode, methodology mode, change mode, configure mode."
+description: "Methodology modes for the Compound Vault. Lets the vault declare an organizational style (LYT / PARA / Zettelkasten / Generic) that wiki-ingest, wiki-save, and wiki-autoresearch consult before filing new pages. Reads `.vault-meta/mode.json`; defaults to `generic` (v1.6/v1.7 behavior) when absent. Per the May 2026 compass artifact, methodology support was priority gap 5 — no other Claude+Obsidian competitor ships it as a first-class skill. Triggers on: set vault mode, switch to PARA, use LYT, what's my vault mode, zettelkasten setup, wiki mode, methodology mode, change mode, configure mode."
 allowed-tools: Read, Write, Bash
 ---
 
 # wiki-mode: Methodology Modes for the Compound Vault
 
-The v1.6 + v1.7 vault structure was opinion-free: `wiki/sources/`, `wiki/entities/`, `wiki/concepts/`, and so on. That works for power-users with their own organizational instincts. It does not serve the large segment of Obsidian users who want a named methodology to follow.
+The v1.6 + v1.7 vault structure was opinion-free — `wiki/sources/`, `wiki/entities/`, `wiki/concepts/`, and so on. That works for power-users with their own organizational instincts. It does NOT serve the large segment of Obsidian users who want a named methodology to follow.
 
-**v1.8 ships `wiki-mode` to close that gap.** A vault declares a mode in `.vault-meta/mode.json`; the other skills consult it before deciding where to file new pages. Mode = `generic` is the default and preserves v1.6/v1.7 behavior exactly.
+**v1.8 ships `wiki-mode` to close that gap.** A vault declares a mode (LYT, PARA, Zettelkasten, or Generic) in `.vault-meta/mode.json`; the other skills consult it before deciding where to file new pages. Mode = `generic` is the default and preserves v1.6/v1.7 behavior exactly.
 
-No other Agent+Obsidian competitor ships PARA, Zettelkasten, or mode-aware routing as a first-class skill.
+**Per May 2026 compass artifact**: This was priority gap 5 of the 5 identified. Ideaverse Pro 2.0 ($200 paid vault) ships LYT as an opinionated structure; no Claude+Obsidian competitor ships PARA / Zettelkasten / mode-aware routing as a first-class skill. v1.8 takes us from TIE → LEAD on the audit §9 methodology-support axis (5 of 7 axes #1).
 
 ---
 
@@ -18,7 +18,7 @@ No other Agent+Obsidian competitor ships PARA, Zettelkasten, or mode-aware routi
 
 ### LYT (Linking Your Thinking — Nick Milo)
 
-**Philosophy:** notes link, folders don't. The organizational primitive is the **MOC**, Map of Content: a hub note that links into a cluster of atomic notes. You browse by following links, not folders.
+**Philosophy:** notes link, folders don't. The organizational primitive is the **MOC** (Map of Content) — a hub note that links into a cluster of atomic notes. You never browse folders; you navigate by following links.
 
 **Filing convention:**
 - `wiki/mocs/<topic>-moc.md` — the MOC for a topic cluster
@@ -118,7 +118,7 @@ The integration layer is in three skills:
 
 - `skills/wiki-ingest/SKILL.md` — "## Mode awareness (v1.8+)" section
 - `skills/save/SKILL.md` — "## Mode awareness (v1.8+)" section
-- `skills/autoresearch/SKILL.md` — "## Mode awareness (v1.8+)" section
+- `skills/wiki-autoresearch/SKILL.md` — "## Mode awareness (v1.8+)" section
 
 Each consults `.vault-meta/mode.json` (via `cat` or direct Read). If absent → mode = generic, behavior unchanged. If present and mode != generic, route per the mode's config.
 
@@ -183,7 +183,7 @@ fi
 
 Per audit §9: methodology support is the cheapest axis to lead. Nobody else ships it. The implementation is mostly conventions + routing + templates; no new infrastructure, no new dependencies. It's the highest-ROI release in the roadmap before the bigger v2.0 (derive) + v2.5 (GUI) work.
 
-After v1.8: opencode-wiki leads on 5 of 7 axes per compass artifact. The remaining 2 (GUI ergonomics, derivative outputs) are major releases by themselves.
+After v1.8: claude-obsidian leads on 5 of 7 axes per compass artifact. The remaining 2 (GUI ergonomics, derivative outputs) are major releases by themselves.
 
 ---
 
@@ -198,7 +198,7 @@ After v1.8: opencode-wiki leads on 5 of 7 axes per compass artifact. The remaini
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|
@@ -206,7 +206,7 @@ When working on this skill, apply the 10-principle loop. See [`skills/think/SKIL
 | 2 | OBSERVE (int) | Audit the assumption that mode=generic is the default — the user may be on LYT/PARA/Zettelkasten. |
 | 3 | LISTEN | The mode is the user's organizational instinct, not yours. Respect what they configured. |
 | 4 | THINK | Apply the mode-specific routing rule to the content type at hand (source / entity / concept / session / research). |
-| 5 | CONNECT (lat) | This skill's `safe_name` is the canonical sanitizer — wiki-ingest, save, autoresearch all funnel through here. |
+| 5 | CONNECT (lat) | This skill's `safe_name` is the canonical sanitizer — wiki-ingest, wiki-save, wiki-autoresearch all funnel through here. |
 | 6 | CONNECT (sys) | Three consumer skills depend on `route` output; consistency across consumers is the v1.8 contract. |
 | 7 | FEEL | Does the routed path feel right to the user? `wiki/notes/Foo.md` (LYT) means something different from `wiki/concepts/Foo.md` (generic). |
 | 8 | ACCEPT | Mode choice is the user's call. Accept that PARA users will sometimes want to override the auto-route. |

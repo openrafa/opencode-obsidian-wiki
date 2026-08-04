@@ -1,5 +1,5 @@
 ---
-name: autoresearch
+name: wiki-autoresearch
 description: >
   Autonomous iterative research loop. Takes a topic, runs web searches, fetches sources,
   synthesizes findings, and files everything into the wiki as structured pages.
@@ -11,7 +11,7 @@ description: >
 allowed-tools: Read Write Edit Glob Grep webfetch websearch_web_search_exa
 ---
 
-# autoresearch: Autonomous Research Loop
+# wiki-autoresearch: Autonomous Research Loop
 
 You are a research agent. You take a topic, run iterative web searches, synthesize findings, and file everything into the wiki. The user gets wiki pages, not a chat response.
 
@@ -51,7 +51,7 @@ Autoresearch calls `webfetch` and `websearch_web_search_exa` to pull arbitrary U
 **1. URL validation.** Reject these schemes and targets:
 - `file://`, `javascript:`, `data:` schemes — fetch only `http(s)://`
 - RFC1918 private addresses (`10.x.x.x`, `172.16-31.x.x`, `192.168.x.x`) and `localhost`/`127.0.0.1` — these would target the user's internal network
-- Hosts not surfaced by the prior `websearch` step (be conservative; do not follow redirects to domains that never appeared in search results)
+- Hosts not surfaced by the prior `WebSearch` step (be conservative; do not follow redirects to domains that never appeared in search results)
 
 The `webfetch` tool has built-in defenses against many of these. Apply them here as defense-in-depth.
 
@@ -61,7 +61,7 @@ The `webfetch` tool has built-in defenses against many of these. Apply them here
 - Reject any `---` YAML-frontmatter delimiter inside fetched content — the source page's frontmatter is authored by the loop, not by the upstream source
 - Truncate fetched bodies to ~50KB to avoid context blowout
 
-**Per-loop cost expectation.** A full autoresearch run is up to 3 rounds × 5 sources × 3 angles, approximately 45 fetch calls. Web fetching is metered. The `max_pages: 15` cap in `references/program.md` limits filing cost but does not cap fetch count. Surface the budget expectation to the user before kicking off research on a high-cost topic.
+**3. Per-loop cost expectation.** A full autoresearch run is up to **3 rounds × 5 sources × 3 angles ≈ 45 `webfetch` calls**. Web fetching is metered. The `max_pages: 15` cap in `references/program.md` limits FILING cost but does NOT cap FETCH count. Surface the budget expectation to the user before kicking off research on a high-cost topic.
 
 **4. Failure mode.** If a fetch fails (timeout, 4xx/5xx, content too large, sanitization removed everything), log the URL + reason to `wiki/log.md` and continue the loop. Do NOT abort the whole run. Do NOT silently swallow — every skipped source is a fact the user needs in the synthesis page's "Open Questions" section.
 
@@ -282,7 +282,7 @@ If a constraint conflicts with completeness, respect the constraint and note wha
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|
@@ -292,7 +292,7 @@ When working on this skill, apply the 10-principle loop. See [`skills/think/SKIL
 | 4 | THINK | 3-5 distinct search angles that cover the topic without overlap; credibility-weighted source filter. |
 | 5 | CONNECT (lat) | Cross-source corroboration vs contradiction — the synthesis lives at the intersection, not in any single source. |
 | 6 | CONNECT (sys) | webfetch + websearch + §Web egress hygiene + wiki-mode router + wiki-lock for multi-writer safety. |
-| 7 | FEEL | 30 pages of low-signal noise wastes the user's time and published plan budget. Quality over volume. |
+| 7 | FEEL | 30 pages of low-signal noise wastes the user's time and Anthropic plan budget. Quality over volume. |
 | 8 | ACCEPT | Missing sources are part of the synthesis — file them under Open Questions, don't paper over. |
 | 9 | CREATE | Synthesis page + sources + entities + concepts; full traceability per claim. |
 | 10 | GROW | Open Questions feed the next research cycle; the loop is incremental, not exhaustive. |

@@ -9,17 +9,17 @@ MCP lets the agent read and write vault notes directly without copy-paste. Four 
 
 ## Step 1: Install the Local REST API Plugin
 
-You must do this in Obsidian (agent cannot do it programmatically):
+You must do this in Obsidian (Claude cannot do it programmatically):
 
 1. Obsidian > Settings > Community Plugins > Turn off Restricted Mode
 2. Browse > Search "Local REST API" > Install > Enable
-3. Settings > Local REST API > Copy the credential
+3. Settings > Local REST API > Copy the API key
 
 The plugin runs on `https://127.0.0.1:27124` with a self-signed certificate.
 
 Test it:
 ```bash
-curl -sk -H "Authorization: Bearer <obsidian-rest-token>" https://127.0.0.1:27124/
+curl -sk -H "Authorization: Bearer <YOUR_KEY>" https://127.0.0.1:27124/
 ```
 
 You should get a JSON response with vault info.
@@ -39,7 +39,7 @@ Add to your `opencode.json` under the `mcp` key:
       "type": "local",
       "command": ["uvx", "mcp-obsidian"],
       "env": {
-        "OBSIDIAN_REST_TOKEN": "<obsidian-rest-token>",
+        "OBSIDIAN_API_KEY": "<YOUR_KEY>",
         "OBSIDIAN_HOST": "127.0.0.1",
         "OBSIDIAN_PORT": "27124",
         "NODE_TLS_REJECT_UNAUTHORIZED": "0"

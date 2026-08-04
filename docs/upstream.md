@@ -28,8 +28,9 @@ substrate when it is installed alongside this bundle.
 
 ## OpenCode-specific changes
 
-This fork maintains OpenCode transport wording, `AGENTS.md`-only project rules,
-compatibility lint, and packaging under `~/.opencode/skills/`. Skills that
+This fork maintains agent-neutral transport wording, `AGENTS.md`-only project
+rules, compatibility lint, and packaging under `~/.agents/skills/` so any agent
+(OpenCode, pi, omp) loads the same bundle. Skills that
 overlap kepano's marketplace defer to kepano when that plugin is present — see
 individual `SKILL.md` files.
 

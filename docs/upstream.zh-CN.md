@@ -26,8 +26,8 @@ kepano 的 Obsidian substrate，请优先使用上游。
 
 ## 本 fork 中的 OpenCode 专属部分
 
-OpenCode transport 表述、仅 `AGENTS.md` 的项目规则、兼容性 lint，以及安装到
-`~/.opencode/skills/` 的打包方式，由本仓库维护。与 kepano marketplace 重叠的
+Agent 中立 transport 表述、仅 `AGENTS.md` 的项目规则、兼容性 lint，以及安装到
+`~/.agents/skills/` 的打包方式，由本仓库维护——OpenCode、pi、omp 都加载同一份 bundle。与 kepano marketplace 重叠的
 skill，在检测到 kepano 插件时让位于 kepano（见各 `SKILL.md`）。
 
 ## 许可

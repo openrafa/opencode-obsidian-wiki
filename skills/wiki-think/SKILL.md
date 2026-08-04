@@ -1,16 +1,16 @@
 ---
-name: think
-description: "Apply the 10-principle thinking loop (OBSERVE-OBSERVE-LISTEN-THINK-CONNECT-CONNECT-FEEL-ACCEPT-CREATE-GROW) to any non-trivial problem. Walks through external observation, metacognition, active listening, first-principles analysis, lateral connection, system orchestration, intuition, intellectual humility, generative output, and iterative growth. Triggers on: think this through, 10-principle review, /think, OBSERVE LISTEN THINK, deep think, systematic thinking, structured reasoning, walk this through, audit my thinking, am I thinking about this right."
+name: wiki-think
+description: "Apply the 10-principle thinking loop (OBSERVE-OBSERVE-LISTEN-THINK-CONNECT-CONNECT-FEEL-ACCEPT-CREATE-GROW) to any non-trivial problem. Walks Claude through external observation, metacognition, active listening, first-principles analysis, lateral connection, system orchestration, intuition, intellectual humility, generative output, and iterative growth. Triggers on: think this through, 10-principle review, /think, OBSERVE LISTEN THINK, deep think, systematic thinking, structured reasoning, walk this through, audit my thinking, am I thinking about this right."
 allowed-tools: Read, Grep, Glob, Bash
 ---
 
-# think: The 10-principle thinking loop
+# wiki-think: The 10-principle thinking loop
 
 A meditation, a discipline, and a checklist. Use this skill when a problem is non-trivial enough that disciplined thinking pays for itself: architectural decisions, post-mortems, ambiguous user requests, audits, multi-stakeholder tradeoffs, "should we ship?" moments, "what are we missing?" moments.
 
 The 10 principles are not a recipe. They are stages of attention. You move through them in order on the first pass, then loop back to the earlier ones as new information emerges. The discipline is in NOT skipping the awkward ones (OBSERVE-internal, ACCEPT, GROW) just because they are uncomfortable.
 
-This skill ships v1.9.0 of opencode-wiki. It is the meta-skill that informs how the other 14 skills think. Each of those skills also has a per-skill "How to think" appendix mapping these 10 stages to that skill's specific work.
+This skill ships v1.9.0 of claude-obsidian. It is the meta-skill that informs how the other 14 skills think. Each of those skills also has a per-skill "How to think" appendix mapping these 10 stages to that skill's specific work.
 
 ---
 
@@ -92,9 +92,9 @@ Invoke `/think` when:
 
 Do NOT invoke `/think` for:
 
-- Single-line typo fixes. The discipline is overkill; just fix it.
-- Trivial lookups. No decision is being made; just answer.
-- Cases where you have already moved through the 10 stages implicitly. Don't ceremonially re-do it.
+- Single-line typo fixes (the discipline is overkill; just fix it)
+- Trivial lookups (no decision is being made; just answer)
+- Cases where you have already moved through the 10 stages implicitly (don't ceremonially re-do it)
 
 The framework's value scales with problem novelty + irreversibility. For a one-line fix that's easily reverted, the loop is dead weight. For a release-blocking audit decision, skipping any stage loses calibration.
 

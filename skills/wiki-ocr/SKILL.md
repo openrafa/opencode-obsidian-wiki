@@ -6,12 +6,12 @@ description: >
   structured table output, and LaTeX conversion.
   Triggers on: "OCR", "识别图片", "文档转换", "mineru", "tesseract", "paddleocr", "pandoc",
   "提取文字", "截图转文字", "PDF 转 markdown".
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash
+allowed-tools: Read Write Edit Glob Grep Bash
 ---
 
 # wiki-ocr: Document Conversion and OCR Toolchain
 
-This skill standardizes OCR and document conversion workflows for opencode-wiki vaults when processing images, PDFs, screenshots, and Office documents.
+This skill standardizes OCR and document conversion workflows for wiki vaults when processing images, PDFs, screenshots, and Office documents.
 
 ---
 
@@ -20,7 +20,7 @@ This skill standardizes OCR and document conversion workflows for opencode-wiki 
 1. **First choice: OpenCode built-in multimodal/vision capability** — zero extra cost, zero latency. Works well for clear images with text, supports table structure understanding. Fallback only if results are poor.
 2. **Second choice: Tesseract** — 1-2 seconds per image. Good for quick tests, English text, and clean printed screenshots.
 3. **Third choice: PaddleOCR** — ~10 seconds per image. General-purpose OCR with coordinate output, requires post-processing for tables.
-4. **Last choice: MinerU** — ~90 seconds per image. Suitable for batch processing large numbers of screenshots or complex structured table output (e.g., contact lists, rosters).
+4. **Last choice: MinerU** — ~90 seconds per image. Suitable for batch processing large numbers of screenshots or complex structured table output (e.g., WeChat contact lists).
 
 > **Agent note**: Do not start MinerU service or download PaddleOCR models immediately. Ask the user if the image is clear, or try OpenCode's multimodal capability first. Only escalate to dedicated tools if quality is insufficient.
 
@@ -36,6 +36,7 @@ Installed via `uv tool install mineru` (v3.2.2).
 # Convert files under .raw/ (use Python to handle filenames with special characters):
 python3 -c "
 import subprocess, os, glob
+# Replace with your actual vault's .raw directory path
 os.chdir('<VAULT_ROOT>/.raw')
 for f in glob.glob('articles/*.pdf'):  # or *.docx
     result = subprocess.run(['mineru', '-p', os.path.abspath(f), '-o', '/tmp/mineru_out', '-b', 'pipeline', '-m', 'auto'],
@@ -74,8 +75,8 @@ mineru -p /tmp/batch.pdf -o /tmp/mineru_out -b pipeline -m auto
 Local API runs at `http://127.0.0.1:13800`, **not persistent**, must be started manually. Best for structured table output with many screenshots to process individually.
 
 - **Pros**: Direct HTML table output with intact row/column structure; reusing the service avoids repeated cold-start and model-loading overhead
-- **Cons**: Slower per image (~90s for dense table screenshots)
-- **Reuse strategy**: Start a long-running agent session to keep the service alive; have other sessions call the API via that instance
+- **Cons**: Slower per image (~90s per WeChat screenshot)
+- **Reuse strategy**: Start a non-timeout sub-agent to keep the service running, have other agents call the API via that instance
 
 ```bash
 # 1. Submit to MinerU API
@@ -95,7 +96,7 @@ curl -s "http://127.0.0.1:13800/tasks/TASK_ID/result" | jq '.results[].md_conten
 > - No table structure needed → CLI mode, merge PDF and run once
 > - Table structure needed and many images → API mode, keep a persistent agent running
 >
-> For vault-specific tool notes, follow that vault's AGENTS.md or wiki meta pages.
+> For detailed usage, refer to the user's own OCR tool notes in their wiki.
 
 ---
 

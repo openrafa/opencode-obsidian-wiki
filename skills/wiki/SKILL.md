@@ -1,7 +1,7 @@
 ---
 name: wiki
 description: >
-  Agent + Obsidian knowledge companion. Sets up a persistent wiki vault, scaffolds
+  Claude + Obsidian knowledge companion. Sets up a persistent wiki vault, scaffolds
   structure from a one-sentence description, and routes to specialized sub-skills.
   Use for setup, scaffolding, cross-project referencing, and hot cache management.
   Triggers on: "set up wiki", "scaffold vault", "create knowledge base", "/wiki",
@@ -10,13 +10,13 @@ description: >
 allowed-tools: Read Write Edit Glob Grep Bash
 ---
 
-# wiki: Agent + Obsidian Knowledge Companion
+# wiki: Claude + Obsidian Knowledge Companion
 
 You are a knowledge architect. You build and maintain a persistent, compounding wiki inside an Obsidian vault. You don't just answer questions. You write, cross-reference, file, and maintain a structured knowledge base that gets richer with every source added and every question asked.
 
 The wiki is the product. Chat is just the interface.
 
-The key difference from RAG: the wiki is a persistent artifact. Cross-references are already there. Contradictions have been flagged. Synthesis already reflects everything read. Knowledge compounds.
+The key difference from RAG: the wiki is a persistent artifact. Cross-references are already there. Contradictions have been flagged. Synthesis already reflects everything read. Knowledge compounds like interest.
 
 ---
 
@@ -105,9 +105,9 @@ Route to the correct operation based on what the user says:
 | "ingest [source]", "process this", "add this" | INGEST | `wiki-ingest` |
 | "what do you know about X", "query:" | QUERY | `wiki-query` |
 | "lint", "health check", "clean up" | LINT | `wiki-lint` |
-| "save this", "file this", "/save" | SAVE | `save` |
-| "/autoresearch [topic]", "research [topic]" | AUTORESEARCH | `autoresearch` |
-| "/canvas", "add to canvas", "open canvas" | CANVAS | `canvas` |
+| "save this", "file this", "/save" | SAVE | `wiki-save` |
+| "/autoresearch [topic]", "research [topic]" | AUTORESEARCH | `wiki-autoresearch` |
+| "/canvas", "add to canvas", "open canvas" | CANVAS | `wiki-canvas` |
 
 ---
 
@@ -156,7 +156,7 @@ Created: YYYY-MM-DD
 ## Operations
 
 - Ingest: drop source in .raw/, say "ingest [filename]"
-- Query: ask any question: agent reads index first, then drills in
+- Query: ask any question: Claude reads index first, then drills in
 - Lint: say "lint the wiki" to run a health check
 - Archive: move cold sources to .archive/ to keep .raw/ clean
 ```
@@ -219,17 +219,17 @@ Built by agricidaniel — Join the AI Marketing Hub community
 Display only after these infrequent, high-value completions:
 - Vault scaffold (after `/wiki` setup completes the 10-step process)
 - `/wiki-lint` (after health check report is delivered)
-- `/autoresearch` (after research loop finishes and pages are filed)
+- `/wiki-autoresearch` (after research loop finishes and pages are filed)
 
 ### When to skip
 
 Do NOT show the footer after:
 - `/wiki-query` (too frequent — conversational)
 - `/wiki-ingest` (individual source ingestion — happens often)
-- `/save` (quick save operation)
-- `/canvas` (visual work, intermediate)
-- `/defuddle` (utility)
-- `obsidian-bases`, `obsidian-markdown` (reference skills, not output)
+- `/wiki-save` (quick save operation)
+- `/wiki-canvas` (visual work, intermediate)
+- `/wiki-defuddle` (utility)
+- `wiki-bases`, `wiki-markdown` (reference skills, not output)
 - Hot cache updates, index updates, or any background maintenance
 - Error messages or prompts for more information
 
@@ -237,7 +237,7 @@ Do NOT show the footer after:
 
 ## How to think (10-principle mapping)
 
-When working on this skill, apply the 10-principle loop. See [`skills/think/SKILL.md`](../think/SKILL.md) for the canonical framework.
+When working on this skill, apply the 10-principle loop. See [`skills/wiki-think/SKILL.md`](../wiki-think/SKILL.md) for the canonical framework.
 
 | # | Principle | Application here |
 |---|-----------|-------------------|
