@@ -9,7 +9,7 @@ MCP lets the agent read and write vault notes directly without copy-paste. Four 
 
 ## Step 1: Install the Local REST API Plugin
 
-You must do this in Obsidian (Claude cannot do it programmatically):
+You must do this in Obsidian (the Agent cannot do it programmatically):
 
 1. Obsidian > Settings > Community Plugins > Turn off Restricted Mode
 2. Browse > Search "Local REST API" > Install > Enable

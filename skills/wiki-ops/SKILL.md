@@ -17,10 +17,10 @@ This skill standardizes safe workflows for work document management, batch modif
 
 ## Work Document Policy
 
-- Original files under 工作/ are preserved and never deleted
-- **Organization-first grouping**: Both `工作/` and `<VAULT_ROOT>/work/` use "organization" as the first grouping layer (e.g., `CMCC/`) to prevent content mixing after job changes
-  - Example: `工作/CMCC/2026/AK3/` → wiki extraction to `<VAULT_ROOT>/work/cmcc/projects/ak3.md`
-  - Future organization: `工作/<NewOrg>/` → `<VAULT_ROOT>/work/<NewOrg>/`
+- Original files under a work-inbox folder (example: `工作/`) are preserved and never deleted
+- **Organization-first grouping**: Both the inbox tree and `<VAULT_ROOT>/work/` use an organization slug as the first grouping layer (e.g. `<org>/`) so a later job change does not mix archives
+  - Example: `工作/<org>/2026/<project>/` → wiki extraction to `<VAULT_ROOT>/work/<org>/projects/<project>.md`
+  - Next organization: `工作/<other-org>/` → `<VAULT_ROOT>/work/<other-org>/`
 - Extract knowledge into wiki only, do not build source indexes
 - Generic content (e.g., personal bio/resume) stays at `<VAULT_ROOT>/work/` root, not tied to any specific organization
 

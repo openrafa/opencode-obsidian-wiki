@@ -2,7 +2,7 @@
 
 [English](README.md) · [中文](README.zh-CN.md)
 
-Agent **wiki / Obsidian** skills，安装到 `~/.agents/skills/` 下，任何能读取共享 skill 目录的 agent —— OpenCode、pi、omp 等 —— 都加载同一份 bundle。不附带私有 vault，不含 live 凭证。
+Agent **wiki / Obsidian** skills。默认装到 **按需 profile**（`~/.agents/profiles/wiki/skills/`），OpenCode / Pi / OMP 不会在未选择 profile 时加载它们。始终启用安装到 `~/.agents/skills/` 仍然可用。不附带私有 vault，不含 live 凭证。
 
 **远程仓库名：** [openrafa/opencode-obsidian-wiki](https://github.com/openrafa/opencode-obsidian-wiki)。本地目录仍可能叫 `opencode-wiki-skills`。
 
@@ -24,19 +24,28 @@ Agent **wiki / Obsidian** skills，安装到 `~/.agents/skills/` 下，任何能
 
 ## 快速开始
 
-1. 选择一个从 `~/.agents/skills/` 加载 skill 的 agent 运行时（OpenCode、pi、omp — 见[工具分层](https://github.com/openrafa/opencode-methodology/blob/main/docs/tool-layering.zh-CN.md)）。
+1. 选择一个 agent 运行时（OpenCode、pi、omp — 见[工具分层](https://github.com/openrafa/opencode-methodology/blob/main/docs/tool-layering.zh-CN.md) 与 [skill profiles](https://github.com/openrafa/opencode-methodology/blob/main/docs/skill-profiles.zh-CN.md)）。
 2. 启用远程出口前先读 [`docs/workflow-model.zh-CN.md`](docs/workflow-model.zh-CN.md) 与 [`docs/transport-model.zh-CN.md`](docs/transport-model.zh-CN.md)。
-3. 克隆并安装：
+3. 克隆并安装 **wiki profile**（推荐）：
 
 ```bash
 git clone https://github.com/openrafa/opencode-obsidian-wiki.git
 cd opencode-obsidian-wiki
-bash scripts/install.sh --dry-run
-bash scripts/install.sh
-# → ~/.agents/skills/  （wiki-* skills，仅合并，不覆盖其他 skill）
+bash scripts/install.sh --dry-run --profile wiki
+bash scripts/install.sh --profile wiki
+# → ~/.agents/profiles/wiki/skills/
+python3 /path/to/opencode-methodology/bin/agentctl install
+agentctl --profile wiki opencode
 ```
 
-升级：`bash scripts/install.sh --prune` 会先移除已安装的 `wiki-*` skills，再拷贝新 bundle。
+始终启用（每个默认扫描 `~/.agents/skills` 的 runtime 都会加载 wiki）：
+
+```bash
+bash scripts/install.sh
+# → ~/.agents/skills/wiki-*
+```
+
+升级：`bash scripts/install.sh --profile wiki --prune` 刷新 profile 拷贝。加上 `--prune-shared` 可清掉 `~/.agents/skills` 里残留的 `wiki-*`。
 
 4. 通过项目或 vault 的 **`AGENTS.md`** 告诉 Agent vault 路径，见 `wiki` skill 脚手架。不要把私有 vault 路径提交到公开仓库。
 5. 先在非敏感 vault 上冒烟：scaffold / `wiki-ingest` / `wiki-query` / `wiki-lint` / `wiki-save`。
@@ -45,7 +54,8 @@ bash scripts/install.sh
 ### 会落到磁盘的内容
 
 ```text
-~/.agents/skills/
+# 推荐：bash scripts/install.sh --profile wiki
+~/.agents/profiles/wiki/skills/
 ├── wiki/                    # vault 脚手架 + 核心约定
 ├── wiki-anki/               # 从笔记生成 Anki 卡片
 ├── wiki-autoresearch/       # 自主迭代式调研循环
@@ -68,6 +78,8 @@ bash scripts/install.sh
 ├── wiki-think/              # 十原则思考循环
 └── wiki-travel/             # 旅行目的地 + 行程复盘
 ```
+
+旧布局 / 始终启用：同样的树在 `~/.agents/skills/` 下（不带 `--profile` 的 `bash scripts/install.sh`）。
 
 ## 这是什么 / 不是什么
 

@@ -1,64 +1,70 @@
 ---
 name: wiki-anki
 description: >
-  从 wiki 文档生成 Anki 卡片，支持四类题型：单选、多选、填空、问答题。
-  负责知识点提炼、牌组/模型创建（含交互式判分模板）、批量导入与验证。
+  Generate Anki cards from wiki documents, supporting four question types:
+  single-choice, multi-choice, fill-in-blank, and free-response QA cards.
+  Handles knowledge extraction, deck/model creation (including an interactive
+  grading template), batch import, and verification.
   Triggers on: "生成卡片", "anki", "抽题", "做成卡片", "anki 集合", "出题", "生成题目", "四类题", "flashcard", "anki 牌组"
 allowed-tools: Read Write Edit Glob Grep Bash
 ---
 
-# wiki-anki: 从 Wiki 文档生成 Anki 卡片
+# wiki-anki: Generate Anki Cards from Wiki Documents
 
-## 何时使用
+## When to Use
 
-用户要求把 wiki 文档（或任意文本来源）做成 Anki 卡片、抽题、生成题目时。覆盖四类题型：**单选、多选、填空、问答题**。
+When the user asks to turn a wiki document (or any text source) into Anki cards, extract quiz questions, or generate exercises. Four question types are covered: **single-choice, multi-choice, fill-in-blank, free-response QA**.
 
-## 核心出题原则
+## Core Question-Design Principles
 
-### 题型分工（避免简单重复）
+### Type Division of Labor (avoid simple duplication)
 
-同一知识点允许多种题型各出一题，但必须**从不同角度考察**，禁止四张卡重复考同一事实：
+The same knowledge point may appear in multiple question types, but each must **test a different angle** — never generate four cards that re-test the same fact:
 
-| 题型 | 考察能力 | 适合内容 | 示例 |
+| Type | Skill tested | Best for | Example |
 |---|---|---|---|
-| 单选 `single` | 事实识别、概念区分 | 「是什么」、唯一答案的选择题 | 滚雷行动是什么行动 |
-| 多选 `multi` | 多条件判断、易混点并列 | 「哪些属于/正确」、干扰项半真半假 | 哪些是尼克松的政策 |
-| 填空 `fill` | 精确记忆 | 数字、人名、地名、专有名词 | 占领____，答案「西贡」 |
-| 问答题 `qa` | 综合理解、因果链 | 「为什么/如何/意义」、影响与评价 | 越南战争如何结束 |
+| Single-choice `single` | Fact recognition, concept discrimination | "What is X", unique-answer identification | What was Rolling Thunder |
+| Multi-choice `multi` | Multi-condition judgment, confusable items | "Which of these", half-true distractors | Which policies were Nixon's |
+| Fill-in-blank `fill` | Precise recall | Numbers, names, places, proper nouns | Captured ____, answer "Saigon" |
+| QA `qa` | Comprehension, causal chains | "Why / how / significance", impacts | How did the war end |
 
-- **相近知识点各一题**：如「17 度线分界」用单选考识别，「西贡陷落日期」用填空考精确记忆，「战争影响」用问答考综合——一个知识点最多出 2 种题型，角度必须不同。
-- **问答卡与交互题 1:1 配比**：出题前先把知识点划分为「综合理解类」（因果链、影响意义 → 问答卡）与「事实记忆类」（时间、地点、人物、数字 → 交互题）两组，**两组总量尽量接近 1:1**（如 20 个知识点 → 10 问答 + 10 交互，或 20:20，禁止 2:1 这类失衡）。交互题内部再按单选/多选/填空均衡分配（每类约三分之一），避免单题型扎堆。
-- 干扰项设计：单选干扰项必须**同类**（都是行动代号/都是年份/都是人名）；多选干扰项**半真半假**（正确表述+错误表述混杂，如把朝鲜的 38 度线混入越南分界线题）。
-- 解析必须写：① 正确答案依据（文档事实）；② 干扰项错在哪（易混点辨析）。
+- **One question per related knowledge point**: e.g., "the 17th parallel" tested by single-choice for recognition, "fall of Saigon date" by fill-in-blank for precise recall, "war impact" by QA for synthesis — at most 2 types per knowledge point, angles must differ.
+- **Distractor design**: single-choice distractors must be **same-class** (all operation names / all years / all names); multi-choice distractors **half-true** (mix correct and incorrect statements, e.g., sneak Korea's 38th parallel into a Vietnam partition question).
+- **Explanation field must contain**: ① basis for the correct answer (facts from the document); ② why each distractor is wrong (confusion-point analysis).
 
-## 两套卡片模型
+### Card-Type Ratio (hard rule)
 
-### 1. 问答题（复用现有模型「问答题」，字段：正面 / 背面）
+- **QA cards vs interactive cards ≈ 1:1**: before writing questions, split knowledge points into "comprehension" (causal chains, impacts → QA cards) and "fact recall" (dates, places, people, numbers → interactive cards) groups. **The two groups must be close to equal in size** (e.g., 20 knowledge points → 10 QA + 10 interactive, or 20:20; a 2:1 imbalance is not acceptable). Within the interactive group, distribute single/multi/fill evenly (about one third each) — no single-type crowding.
 
-- 普通问答卡：正面 = 问题，背面 = 答案。不交互，翻面看答案。
-- 答案要点分行书写，含关键数字/人名。
+## The Two Card Models
 
-### 2. 历史交互题（模型「历史交互题」，字段：题干 / 题型 / 选项 / 答案 / 解析）
+### 1. QA Cards (reuse existing model "问答题", fields: 正面 / 背面)
 
-- 交互式：点击/输入 → 立即判对错（红绿）→ 点「显示答案」翻面看解析。
-- **字段规则**：
-  - 题型：`single` | `multi` | `fill`
-  - 选项：`||` 分隔（fill 留空）
-  - 答案：单选 `"B"`；多选 `"A||B||D"`；填空多个可接受答案 `"300||三百万"`
-  - 解析：含错因与干扰项辨析
-- **⚠️ 字段顺序必须「题干」在首位**：Anki 重复检测按首字段 hash，若「题型」在前，同题型卡会被误判为重复而跳过（实测踩坑）。
+- Plain Q&A cards: Front = question, Back = answer. No interaction; flip to reveal the answer.
+- Write answer points on separate lines; include key numbers/names.
 
-### 模型存在性检查
+### 2. Interactive Cards (model "交互题", fields: 题干 / 题型 / 选项 / 答案 / 解析)
+
+- Interactive: click/type → immediate red/green grading → press "Show Answer" to flip and read the explanation.
+- **Field rules**:
+  - 题型 (Type): `single` | `multi` | `fill`
+  - 选项 (Options): `||`-separated (empty for fill)
+  - 答案 (Answer): single `"B"`; multi `"A||B||D"`; fill accepts multiple answers `"300||三百万"`
+  - 解析 (Explanation): correct-answer basis + distractor analysis
+- **⚠️ Field order: "题干" (Question) MUST be first**: Anki's duplicate check hashes the first field; if "题型" came first, same-type cards were wrongly skipped as duplicates (real bug hit in production).
+
+### Model Existence Check
 
 ```json
-{"action": "modelNames"}  // xd://mcp__anki_modelnames
+{"action": "modelNames"}
 ```
-- 缺失时用下方模板创建（createModel，模型名「历史交互题」，字段顺序 `["题干","题型","选项","答案","解析"]`）
-- 存在时直接用，无需重建（模型是模板级共享，删牌组不会删模型）
+Call this through your Anki MCP server or AnkiConnect HTTP API (`localhost:8765`). Do not hardcode a vendor tool URI.
+- If missing, create with the template below (model name `交互题`, field order `["题干","题型","选项","答案","解析"]`). If you already created a model with the same fields under another name, reuse it.
+- If present, reuse as-is (models are shared at template level; deleting a deck does not delete the model)
 
-## 交互模板（最终版，已浏览器实测三轮；勿改动结构）
+## Interactive Template (final version, browser-tested 3 rounds; do not change the structure)
 
-### Front（卡面）
+### Front
 
 ```html
 <div class="vw-card">
@@ -219,7 +225,7 @@ allowed-tools: Read Write Edit Glob Grep Bash
 </script>
 ```
 
-### Back（卡背：翻面显示解析）
+### Back (flip side: explanation)
 
 ```html
 {{FrontSide}}<hr id="answer">
@@ -229,7 +235,7 @@ allowed-tools: Read Write Edit Glob Grep Bash
 </div>
 ```
 
-### CSS（模型样式，日/夜双模式）
+### CSS (model styling, light/dark dual mode)
 
 ```css
 .card { font-family: -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
@@ -265,32 +271,32 @@ body.nightMode .vw-input-ok { border-color: #66bb6a; background: #1b3a24; }
 body.nightMode .vw-input-no { border-color: #ef5350; background: #3d1f1f; }
 ```
 
-## 工作流
+## Workflow
 
-1. **读源**：读 wiki 文档（或用户给的文本），提炼原子知识点列表（含关键数字、人名、地名、日期、因果链）。
-2. **分题型与配比**：先把知识点划分为问答卡（综合理解）与交互题（事实记忆）两组，总量接近 1:1；交互题内部再均衡分配单选/多选/填空。相近知识点避免同角度重复。用户若指定「每类各一题」，则每个知识点从不同角度出 1-4 题。
-3. **建牌组**：`createDeck`，命名 `领域::主题`（如 `历史::越南战争`）。**最多 2 级**（`parent::child`），3 级会被拒绝。
-4. **确认模型**：`modelNames` 检查；「问答题」/「历史交互题」缺失才创建（用上方模板）。
-5. **批量导入**：`addNotes`（同一牌组+模型 ≤100 条/批）。交互题字段：题型/题干/选项/答案/解析；问答字段：正面/背面。共享 tags：`history` + 主题 + `interactive`（交互题）。
-6. **验证**：`listDecks`（includeStats）确认卡片数正确；`notesInfo` 抽查 1-2 张字段完整。
-7. **收尾**：告知用户可开刷；有新牌组时建议手动同步 AnkiWeb。
+1. **Read source**: read the wiki document (or user-provided text); extract an atomic knowledge-point list (key numbers, names, places, dates, causal chains).
+2. **Assign types & balance ratio**: split knowledge points into QA (comprehension) and interactive (fact recall) groups, **totals close to 1:1**; within the interactive group, distribute single/multi/fill evenly. Avoid same-angle duplication across nearby points. If the user asks for "one of each type per point", produce 1-4 cards per point from different angles.
+3. **Create deck**: `createDeck`, name as `Domain::Topic` (e.g. `历史::越南战争`). **Max 2 levels** (`parent::child`); 3 levels are rejected.
+4. **Check models**: `modelNames`; create `问答题`/`交互题` only if missing (use templates above).
+5. **Batch import**: `addNotes` (≤100 notes per batch per deck+model). Interactive fields: 题型/题干/选项/答案/解析; QA fields: 正面/背面. Shared tags: `history` + topic + `interactive` (for interactive cards).
+6. **Verify**: `listDecks` (includeStats) confirms card counts; `notesInfo` spot-checks 1-2 notes for complete fields.
+7. **Wrap up**: tell the user the deck is ready to study; suggest a manual AnkiWeb sync when new decks were added.
 
-## 踩坑清单（实测教训，务必遵守）
+## Pitfalls (all hit in production — obey these)
 
-1. **首字段即重复检测键**：addNotes 批量添加时，模型首字段相同的卡会被跳过（曾导致 11 张只进 3 张）。交互题首字段必须是「题干」。
-2. **提交按钮不可藏在隐藏容器内**：曾把按钮放进 `#vwF`（display:none 的填空容器），多选模式下按钮连带不可见——按钮必须独立、由 JS 按题型控制显隐。
-3. **createDeck 限 2 级嵌套**：`历史::冷战::越南战争` 会报错，用 `历史::越南战争`。
-4. **Anki 翻面重跑 JS**：`{{FrontSide}}` 会重新执行卡面脚本，交互状态必须存 sessionStorage，并按题干比对（防串卡），刷新后重放红绿。
-5. **模板 JS 禁 `{{`**：`{{` 会被 Anki 当字段语法解析，JS 内用字符串拼接，不用模板字符串。
-6. **字段数据经 `<script type="text/plain">` 传递**：textContent 读取，避免字段中的引号破坏 JS 字符串/HTML 属性。
-7. **sync 报错不影响本地**：Sync status 2 = 本地有未同步的变更（如删牌组），本地操作照常，稍后重试同步即可。
-8. **删牌组不会删模型**：重建只需建牌组 + addNotes，模型（含模板）可复用。
+1. **First field is the duplicate key**: in batch `addNotes`, cards sharing the same first-field value are skipped as duplicates (caused 8 of 11 cards to be dropped once). The interactive model's first field MUST be 题干.
+2. **Never hide the submit button inside a hidden container**: the button was once placed inside `#vwF` (a `display:none` fill container), making it invisible in multi-choice mode. The button must be a standalone element whose visibility is controlled by JS per type.
+3. **createDeck is limited to 2 levels**: `历史::冷战::越南战争` errors; use `历史::越南战争`.
+4. **Anki re-runs JS on flip**: `{{FrontSide}}` re-executes the front script; interaction state must persist via sessionStorage keyed by the question text (prevents cross-card leakage) and be replayed on re-render.
+5. **No `{{` in template JS**: `{{` is parsed as an Anki field; use string concatenation, never template literals.
+6. **Pass field data via `<script type="text/plain">`**: read with `textContent` to avoid quotes in field values breaking JS strings or HTML attributes.
+7. **Sync errors do not block local work**: Sync status 2 = pending local changes (e.g. deleted decks); local operations are fine, retry sync later.
+8. **Deleting a deck does not delete the model**: rebuild = create deck + addNotes; the model (with templates) is reusable.
 
-## 验证模板（可选，改模板后必做）
+## Template Verification (mandatory after any template change)
 
-将 Front 模板的 `{{题型}}/{{题干}}/{{选项}}/{{答案}}/{{解析}}` 替换为测试数据生成本地 HTML（放 `.scripts/`），用浏览器（xd://browser）模拟点击验证：
-- 单选：点选即判，错项红/对项绿
-- 多选：勾选 → 「提交答案」按钮**真实可见**（检查 `offsetParent !== null`，勿用 getComputedStyle——隐藏父容器下它仍返回声明值）
-- 填空：输入 → 提交 → 红/绿框
-- 刷新页面：红绿与横幅状态恢复
-- 验证后删除测试文件
+Replace `{{题型}}/{{题干}}/{{选项}}/{{答案}}/{{解析}}` in the Front template with test data, write a local HTML file (under `.scripts/`), and open it in a browser to click through:
+- Single: click-to-grade; wrong option red / correct green
+- Multi: toggle options → "提交答案" button **really visible** (check `offsetParent !== null`, NOT getComputedStyle — it returns the declared value even under a hidden parent)
+- Fill: input → submit → red/green input frame
+- Reload page: red/green state and banner restored
+- Delete test files afterwards

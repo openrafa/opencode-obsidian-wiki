@@ -18,8 +18,8 @@ allowed-tools: Read Write Edit Glob Grep Bash
 Each person is a standalone note under `wiki/personal/collection/network/`, queried via `wiki/meta/network.base`.
 
 - **Note path**: `wiki/personal/collection/network/<真名>.md` (use 圈名 or 称呼 if real name unknown)
-- **Database view**: `wiki/meta/network.base` — 7 views (全部/同事/同学/朋友/家人/字幕组/鸟友)
-- **Photos**: Drop into `_attachments/people/<笔记文件名>.<ext>` then run `.scripts/migrate_network.py --sync-photos` to auto-link
+- **Database view**: `wiki/meta/network.base` — views by category (all / colleagues / classmates / friends / family) plus whatever hobby groups the vault actually uses
+- **Photos**: Drop into `_attachments/people/<note-filename>.<ext>` then run `.scripts/migrate_network.py --sync-photos` to auto-link
 - **Migration script**: `.scripts/migrate_network.py` (stdlib, create-only, dry-run by default)
 
 ### Frontmatter Schema
@@ -32,7 +32,7 @@ Each person is a standalone note under `wiki/personal/collection/network/`, quer
 | 圈名 | string | In-group name (e.g. fansub circles) |
 | aliases | list | All known names for search/link completion (exclude the filename itself) |
 | category | list | 同事/同学/朋友/家人 (multi-value, **YAML list**) |
-| group | list | Secondary grouping (九天/北大附中/字幕组/鸟友…, multi-value, **YAML list**) |
+| group | list | Secondary grouping (`<employer>`, `<school>`, `<hobby-group>`, … — multi-value **YAML list**). Use names that already exist in the vault; do not invent a taxonomy here. |
 | 来源 | string | Department / school / how you met |
 | 办公地 | string | Office city (colleague-type) |
 | 关系 | string | Relationship detail (family / partner's-family type) |
@@ -53,11 +53,11 @@ Omit empty fields (formula and base treat missing keys as falsy). Body first lin
 When the user describes a person to add, follow this procedure.
 
 **Example user prompts:**
-- 「把张三加进 network，同事，九天团队，办公地西安」
-- 「字幕组加了新人，圈名 misaka，真名不知道」
+- 「把张三加进 network，同事，<employer> 团队，办公地 <city>」
+- 「<hobby-group> 加了新人，圈名 <handle>，真名不知道」
 - 「帮我补上李四的生日，6 月 15」
 
-**Sisyphus procedure:**
+**Procedure:**
 1. **Confirm classification**: Determine `category` and `group` (reference existing group names, never invent new ones)
 2. **Determine filename**: Priority order 真名 → 圈名 → 称呼. Sanitize filesystem-forbidden characters. If collision, append ` (组名)` suffix
 3. **Generate frontmatter**: `type=person`, omit empty fields, collect all known names ≠ filename into `aliases`, duplicate 备注 as body first line
@@ -65,9 +65,9 @@ When the user describes a person to add, follow this procedure.
 5. **Report**: State the created/modified note path
 
 **Important:**
-- **group and category are always YAML lists**: write `group:\n  - 字幕组`, not `group: 字幕组`, even for single values
+- **group and category are always YAML lists**: write `group:\n  - <group>`, not `group: <group>`, even for single values
 - **Never rename after creation**: later real-name discovery goes into `aliases` to keep wikilinks intact
-- **Wikilink style**: vault-root absolute path, e.g. `[[wiki/personal/collection/network/严少飞]]`, never `../` relative
+- **Wikilink style**: vault-root absolute path, e.g. `[[wiki/personal/collection/network/<Name>]]`, never `../` relative
 - **Batch additions**: edit `wiki/personal/collection/network.md` group tables then rerun `migrate_network.py --write`; single additions go straight to individual notes
 - **Script never overwrites existing notes** (create-only write strategy), safe for manual edits
 
@@ -81,9 +81,11 @@ Group headings by "where you met them", **not by relationship type**.
 
 | Heading | Meaning |
 |---------|---------|
-| `## 九天` | Everyone met during 九天人工智能 (including model engineering R&D center, contractors, vendors) |
-| `## 中移集团` | Everyone met at the group (research institute departments, party school, cooperation department, integration, branches) |
-| `## 同学 / 朋友 & 网友` | Everyone met in non-work contexts |
+| `## <employer>` | Everyone met at that organization (employees, contractors, vendors) |
+| `## <school>` | Everyone met in that school / program |
+| `## classmates / friends` | Everyone met in non-work contexts |
+
+Do not publish a personal employer list inside this skill — copy headings from the vault that already exist.
 
 - People who have left a company are not moved to a separate "former colleague" heading; keep them under their original organization heading with a note "已离职" (left company)
 
@@ -93,11 +95,11 @@ Group headings by "where you met them", **not by relationship type**.
 
 These conventions now apply to frontmatter fields in individual person notes (previously applied to table rows in network.md).
 
-**来源 field**: Write the specific unit/department, e.g., "模型工程研发中心" (Model Engineering R&D Center), "战略所" (Strategy Institute), "科大讯飞" (iFlytek), "外协" (Contractor). Do not repeat the heading name.
+**来源 field**: Write the specific unit / department / how you met. Do not repeat the heading name.
 
-**备注 field**: Do not write WeChat names (unmaintainable). Write scene information or stories:
-- Colleague scenes: "同期" (same cohort), "聚智团队" (Juzhi team), "已离职去广发证券" (left for GF Securities), "产品经理" (product manager)
-- Friend scenes: Concisely record how you met and the relationship, e.g., "西双版纳驴友，爬过茶马古道" (Xishuangbanna travel buddy, hiked Tea Horse Road), "通过老张介绍，偶尔一起打球" (Introduced by Lao Zhang, occasionally play ball together)
+**备注 field**: Do not write chat-app display names (unmaintainable). Write scene information or stories:
+- Colleague scenes: cohort, team, role, "left the company"
+- Friend scenes: how you met, in one sentence
 - All notes should be concise, one sentence
 
 **All fields are optional**. Leave blank if unknown, do not force-fill.
@@ -108,4 +110,4 @@ These conventions now apply to frontmatter fields in individual person notes (pr
 
 - **Use real names only in wiki documents and body text**; nicknames are reserved only in the 称呼 / 圈名 fields of the frontmatter
 - Before writing any person's name, check `<VAULT_ROOT>/work/<Organization>/team.md` (or user's custom team roster file) to confirm the real name
-- Do not write nicknames from memory (e.g., "老王", "大石总", "滢滢")
+- Do not write nicknames from memory; confirm against the vault's own roster if one exists

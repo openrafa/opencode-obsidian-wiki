@@ -1,17 +1,21 @@
 ---
 name: wiki-travel
 description: >
-  Travel destination management and review rules. Covers domestic/overseas destination file formats,
-  travel plan ingestion and review workflows, #todo tagging, and birdwatching spot logging.
-  For organizing and archiving travel-related wiki content.
+  Manage travel destinations, trip plans, spot files, and travel reviews in a wiki vault.
+  Covers one-file-per-spot layout, city index pages, theme libraries (birding, stargazing,
+  skyline, hiking), plan ingestion, and review archives.
   Triggers on: "旅行", "目的地", "复盘", "旅行计划", "拾遗", "景区", "游记",
-  "国内旅行", "海外旅行", "观鸟".
+  "国内旅行", "海外旅行", "观鸟", "spot", "travel".
 allowed-tools: Read Write Edit Glob Grep Bash
 ---
 
 # wiki-travel: Travel Destination Management
 
-This skill standardizes the format and workflow for destination files, travel plans, and review archiving under `<VAULT_ROOT>/wiki/personal/travel/` (or the user's custom travel directory).
+Standardize spot files, travel plans, and review archives under a travel tree in the vault. The default convention below is a starting layout — override the root in `AGENTS.md` if the vault uses a different travel directory.
+
+Default root: `<VAULT_ROOT>/wiki/personal/travel/`
+
+This skill describes a **generic** schema (spot files + indexes + tags). Recommendation sources, region names, and example places belong to the vault owner; never copy another person's source tags or itineraries into a public repo.
 
 ---
 
@@ -19,41 +23,71 @@ This skill standardizes the format and workflow for destination files, travel pl
 
 ```
 <VAULT_ROOT>/wiki/personal/travel/
+├── spots/                       # one file per physical place
+│   ├── <region>/                # domestic: large-region folders (customize)
+│   └── <country>/               # overseas: one folder per country
 ├── destinations/
-│   ├── domestic/<Province>/<City or District>.md
-│   └── overseas/<Country>/<First-level Division>/<City>.md
-├── birdwatching.md
-└── [Travel Plan Files].md
+│   ├── domestic/<Province>/<City or District>.md   # link-only indexes → spots
+│   └── overseas/<Country>/…                        # link-only indexes
+├── birdwatching.md              # activity log (links to spots), optional
+├── <theme>/<region>.md          # theme libraries (birding / stargazing / skyline / …)
+├── trips/                       # trip journals
+└── destinations.md              # hub page; may embed a Bases view
 ```
 
----
+Optional database view (Obsidian Bases): `wiki/meta/destinations.base` filtered on `type == "spot"`. Useful views: visited / planned / missed; per-type (attraction / birding / stargazing / trail / restaurant); per-source **tags**; overseas grouped by country.
 
-## Domestic Destinations
-
-**Path**: `<VAULT_ROOT>/wiki/personal/travel/destinations/domestic/<Province>/<City or District>.md` (or user's custom travel directory)
-
-- One folder per province, one `.md` per prefecture-level city; municipalities split by district
-- City files use unordered lists, format:
-  ```
-  - Attraction Name  One-line description  [YYYYMM]
-      - #5A景区  ★★★★  Natural landscape  Mountain
-      - #SourceTag  Video link (optional)
-  ```
-- One attraction can have multiple tags: `#5A景区` `#三山五岳` `#个人收藏` etc.
-- Recommendation source: one tag only, optional link: `#呆呆不吃喵推荐` `#北洛推荐` `#影视飓风推荐`
-- Visited mark `[YYYYMM]` follows the attraction name, records **first visit time**, not updated for revisit
+Recommendation sources are **tags on spot files**, not standalone list notes.
 
 ---
 
-## Overseas Destinations
+## Spot File Format
 
-**Path**: `<VAULT_ROOT>/wiki/personal/travel/destinations/overseas/<Country>.md` as country index, `<Country>/` directory for sub-content (or user's custom travel directory)
+```markdown
+---
+type: spot
+spot_type: attraction            # primary: attraction | birding | stargazing | skyline | trail | restaurant | …
+types: [attraction]              # all applicable types
+status: visited                  # visited | planned | missed   (vault may use local-language equivalents)
+visited: 2024-10                 # first visit YYYY-MM (omit if not visited)
+rating: 4.5                      # optional
+region: <large-region>           # domestic grouping, optional
+province: <province>
+city: <city>
+country: <country>               # overseas
+admin: <country>/<subdivision>
+season: summer                   # best season when known
+bortle: "3"                      # stargazing spots
+tags: [travel, spot, rec/<source-id>]
+---
 
-- **Directory structure**: First-level divisions (prefecture/state/province) as folders, subordinate cities as `.md` files
-- **Filenames**: Use native script (e.g., `関東地方.md`, `缅因州.md`)
-- **H1 title**: Use `<ruby>` for original text + reading/translation: `# <ruby>東京都<rt>とうきょう</rt></ruby>`
-- Example: `日本/関東地方.md` → `日本/東京都/` → `日本/東京都/新宿区.md`
-- **Remove `<rt>` in wikilinks**: Obsidian wikilinks do not support `<rt>` rendering; use plain text for link text, keep reading only in the title
+# Place name
+# Overseas titles may keep ruby: # <ruby>伏見稲荷大社<rt>ふしみいなりたいしゃ</rt></ruby>
+
+One-line summary
+
+## Details
+```
+
+Rules:
+
+- One physical place = one file, even if it is both a trail and a viewpoint (`types` lists all)
+- Folder = large region (domestic) or country (overseas); admin details live in frontmatter, not in the path
+- `visited` records the **first** visit only (`YYYY-MM`); do not update on revisit
+- Wikilinks use vault-absolute paths: `[[wiki/personal/travel/spots/<region>/<SpotName>|<SpotName>]]`; no `<rt>` inside link text
+- Overseas H1 may keep ruby; the filename stays plain
+- Source / checklist membership is tags only, for example `#rec/<source-id>`, plus any public taxonomy tags the vault uses. Do not recreate standalone “recommendation list” files
+- Keep source ids generic (`blog`, `channel`, `friend`, or a short slug). Do not bake a specific creator, employer, or private nickname into this skill
+
+Status / type values in the vault may be localized (for example 去过 / 待去 / 拾遗, 景点 / 鸟点 / 观星). Match the vault's existing vocabulary; the English keys above are the portable aliases.
+
+---
+
+## Index & Theme Pages
+
+- City files (`destinations/**`): link-only lists; keep frontmatter and H1. One line per spot: `- [[…|Name]]  [YYYYMM]` (visited mark optional). A `## Planned` (or local equivalent) section collects spots not yet in the main list
+- Theme libraries: keep methodology / intro prose; replace long per-spot writeups with links. Details live in the spot file
+- Never recreate standalone recommendation lists — sources stay as tags
 
 ---
 
@@ -61,27 +95,30 @@ This skill standardizes the format and workflow for destination files, travel pl
 
 ### Iron Rules
 
-**Rule 1: Never delete plan content.** When the user reviews a trip, whether via natural language or by pasting an actual execution checklist (with ✅ marks), always **keep the original plan + append actual execution**, creating a "Plan / Actual" dual-section comparison. Do not replace the original plan with actual execution.
+**Rule 1: Never delete plan content.** On review, keep the original plan and append actual execution (“Plan / Actual” dual sections).
 
-**Rule 2: Extract locations from every sentence.** During review, extract as many locations as possible from the user's natural language description — not just main attractions, but also passed-by spots, photographed places, visited streets/buildings/commercial facilities, temporary shop visits. Write all into the corresponding regional `.md` with `[YYYYMM]`. More locations is better for future #todo extraction.
+**Rule 2: Extract locations from every sentence.** Main attractions, pass-by spots, photographed places, streets, buildings, shops. More is better for later missed-spot extraction.
 
-**Rule 3: Always tag #todo.** Places planned but not visited, and newly discovered but not visited, must all be written into the corresponding regional index `.md` and explicitly tagged `#拾遗`. During review of each plan item, simultaneously check for any missed #todo entries.
+**Rule 3: Always record missed spots.** Planned-but-not-visited and newly discovered-but-not-visited: create a spot file (`status: missed`) in the right region folder, and add a link under the city file's planned section.
 
 ### Workflow
 
-1. **After plan ingestion, supplement surrounding areas**: After the user's travel plan is ingested into the wiki, fill in stub entries for neighboring administrative divisions at the same level (cities under the same prefecture/state) as the planned cities/regions, and add wikilinks for mentioned place names in the plan document; **plan attractions are written directly into the corresponding regional `.md`** (no need to wait for review), with impressions added later during review or moved to #todo
-2. **Archive #todo during review**: When the user reviews a plan:
-   - Supplement actual execution, **impressions and evaluations** (good/bad experience, worth it or not, pitfalls) next to corresponding attractions in the plan document
-   - **Newly discovered but not visited**: write into the regional index `.md` under the corresponding directory, tag `#拾遗`
-   - **Planned but not visited**: same as above, write into regional index `.md`, tag `#拾遗`
-   - `#拾遗` format: `- Place Name  #拾遗  One-line note` (same level as attraction entries)
-   - **Note**: Unplanned short trips (rule #4) do not need this step, just handle locations
-3. **Add visited attractions during review**: All actually visited places during the trip (whether planned or unplanned) must be supplemented into the corresponding regional attraction `.md`, with `[YYYYMM]` visited mark and one-line description, format consistent with existing entries
-4. **Unplanned short trips also get reviewed**: Nearby or short-period trips may not have a formal plan document; user oral description suffices — still supplement visited attractions and `#拾遗`, no need to create a plan file
-5. **Sync birdwatching spots**: For birdwatching-related locations, in addition to the regional attraction `.md`, also sync to `<VAULT_ROOT>/wiki/personal/travel/birdwatching.md` (or user's custom birdwatching file), format: `- Location  Note  [YYYYMMDD]  #Province/City #Birdwatching #Season`
+1. **After plan ingestion**: create spot files for planned attractions (`status: planned`), link them from the city index; stub neighboring city indexes when useful
+2. **During review**:
+   - Update spot frontmatter: `status` → visited, `visited` → YYYY-MM; append impressions to the spot body
+   - Newly discovered but not visited: new spot with `status: missed`
+   - Update the trip journal and optional activity logs with links
+3. **Unplanned short trips** get the same review without creating a plan file
+4. **Themed spots** (birding, stargazing, …): put type in `types` and keep species / habitat / viewpoint notes in the spot body
 
 ---
 
-## Index Pages
+## Naming & Placement Quick Reference
 
-Grouped by source (Personal Collection / 呆呆不吃喵 / 北洛 / 影视飓风 / 三山五岳 / 五湖四海), only link to city files, no body text.
+| Case | Folder | Notes |
+|---|---|---|
+| Domestic spot | `spots/<region>/` | region / province / city in frontmatter |
+| Overseas spot | `spots/<country>/` | country / admin in frontmatter; ruby in H1 optional |
+| Same place, multiple types | one file | primary `spot_type` + `types` list |
+| Name collision in a folder | prefix with city | e.g. `<City>·<Place>` |
+| Walking / trekking route | one spot | `spot_type: trail`, segments in the body |

@@ -2,7 +2,7 @@
 
 [English](README.md) · [中文](README.zh-CN.md)
 
-Agent **wiki / Obsidian** skills, installed into `~/.agents/skills/` so any agent — OpenCode, pi, omp, or anything else that reads the shared skill directory — loads the same bundle. No private vault, no live credentials.
+Agent **wiki / Obsidian** skills. Default install is an **opt-in profile** (`~/.agents/profiles/wiki/skills/`) so OpenCode, Pi, and OMP do not load the bundle unless you ask. Always-on install into `~/.agents/skills/` remains available. No private vault, no live credentials.
 
 **Remote name:** [openrafa/opencode-obsidian-wiki](https://github.com/openrafa/opencode-obsidian-wiki) (local folder may still be called `opencode-wiki-skills`).
 
@@ -24,19 +24,28 @@ Full notes: [`docs/upstream.md`](docs/upstream.md) · [中文](docs/upstream.zh-
 
 ## Getting started
 
-1. Pick an agent runtime that loads skills from `~/.agents/skills/` (OpenCode, pi, omp — see [tool layering](https://github.com/openrafa/opencode-methodology/blob/main/docs/tool-layering.md)).
+1. Pick an agent runtime (OpenCode, pi, omp — see [tool layering](https://github.com/openrafa/opencode-methodology/blob/main/docs/tool-layering.md) and [skill profiles](https://github.com/openrafa/opencode-methodology/blob/main/docs/skill-profiles.md)).
 2. Read [`docs/workflow-model.md`](docs/workflow-model.md) and [`docs/transport-model.md`](docs/transport-model.md) before enabling remote egress.
-3. Clone and install:
+3. Clone and install the **wiki profile** (recommended):
 
 ```bash
 git clone https://github.com/openrafa/opencode-obsidian-wiki.git
 cd opencode-obsidian-wiki
-bash scripts/install.sh --dry-run
-bash scripts/install.sh
-# → ~/.agents/skills/  (wiki-* skills, merge-only)
+bash scripts/install.sh --dry-run --profile wiki
+bash scripts/install.sh --profile wiki
+# → ~/.agents/profiles/wiki/skills/
+python3 /path/to/opencode-methodology/bin/agentctl install
+agentctl --profile wiki opencode
 ```
 
-Upgrades: `bash scripts/install.sh --prune` removes previously-installed `wiki-*` skills before copying the fresh bundle.
+Always-on (every default scan of `~/.agents/skills` loads wiki skills):
+
+```bash
+bash scripts/install.sh
+# → ~/.agents/skills/wiki-*
+```
+
+Upgrades: `bash scripts/install.sh --profile wiki --prune` refreshes the profile copy. Add `--prune-shared` to remove leftover `wiki-*` from `~/.agents/skills`.
 
 4. Point the Agent at your vault via project or vault **`AGENTS.md`** (see the `wiki` skill scaffold). Do not commit private vault paths to public repos.
 5. Smoke-test on a non-sensitive vault: scaffold / `wiki-ingest` / `wiki-query` / `wiki-lint` / `wiki-save`.
@@ -45,7 +54,8 @@ Upgrades: `bash scripts/install.sh --prune` removes previously-installed `wiki-*
 ### What lands on disk
 
 ```text
-~/.agents/skills/
+# recommended: bash scripts/install.sh --profile wiki
+~/.agents/profiles/wiki/skills/
 ├── wiki/                    # vault scaffold + core conventions
 ├── wiki-anki/               # generate Anki cards from notes
 ├── wiki-autoresearch/       # autonomous iterative research loop
@@ -68,6 +78,8 @@ Upgrades: `bash scripts/install.sh --prune` removes previously-installed `wiki-*
 ├── wiki-think/              # 10-principle thinking loop
 └── wiki-travel/             # travel destinations + trip reviews
 ```
+
+Legacy / always-on: the same tree under `~/.agents/skills/` (`bash scripts/install.sh` with no `--profile`).
 
 ## What this is / is not
 
