@@ -24,6 +24,25 @@ Full notes: [`docs/upstream.md`](docs/upstream.md) · [中文](docs/upstream.zh-
 
 ## Getting started
 
+### Option A — skills CLI (any agent, 74+ supported)
+
+```bash
+npx skills add openrafa/opencode-obsidian-wiki
+# → symlinked into your agent's skill directory (e.g. ~/.config/opencode/skills/)
+# opt-in skills one by one (recommended for wiki-*):
+npx skills add openrafa/opencode-obsidian-wiki --skill wiki --skill wiki-ingest --skill wiki-query
+```
+
+Runtime helper scripts ship inside the skill bundles. One-time per vault provisioning (needed by `wiki`, `wiki-mode`, `wiki-retrieve`, `wiki-cli`):
+
+```bash
+bash ~/.config/opencode/skills/wiki/scripts/setup-vault.sh /path/to/vault      # wiki-mode.py, wiki-lock.sh, ...
+bash ~/.config/opencode/skills/wiki-mode/scripts/setup-mode.sh /path/to/vault  # set LYT / PARA / Zettel / generic
+bash ~/.config/opencode/skills/wiki-retrieve/scripts/setup-retrieve.sh /path/to/vault  # hybrid retrieval pipeline
+```
+
+### Option B — clone and install (RAFA wiki profile)
+
 1. Pick an agent runtime (OpenCode, pi, omp — see [tool layering](https://github.com/openrafa/opencode-methodology/blob/main/docs/tool-layering.md) and [skill profiles](https://github.com/openrafa/opencode-methodology/blob/main/docs/skill-profiles.md)).
 2. Read [`docs/workflow-model.md`](docs/workflow-model.md) and [`docs/transport-model.md`](docs/transport-model.md) before enabling remote egress.
 3. Clone and install the **wiki profile** (recommended):

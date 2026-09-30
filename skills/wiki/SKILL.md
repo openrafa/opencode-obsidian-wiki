@@ -119,14 +119,15 @@ Steps:
 
 1. Determine the wiki mode. Read `references/modes.md` to show the 6 options and pick the best fit.
 2. Ask: "What is this vault for?" (one question, then proceed).
-3. Create full folder structure under `wiki/` based on the mode.
-4. Create domain pages + `_index.md` sub-indexes.
-5. Create `wiki/index.md`, `wiki/log.md`, `wiki/hot.md`, `wiki/overview.md`.
-6. Create `_templates/` files for each note type.
-7. Apply visual customization. Read `references/css-snippets.md`. Create `.obsidian/snippets/vault-colors.css`.
-8. Create the vault AGENTS.md using the template below.
-9. Initialize git. Read `references/git-setup.md`.
-10. Present the structure and ask: "Want to adjust anything before we start?"
+3. Provision the runtime helpers: `bash <skill-dir>/scripts/setup-vault.sh <vault>` — copies `wiki-mode.py`, `wiki-lock.sh`, `allocate-address.sh`, `tiling-check.py`, `boundary-score.py`, and `detect-transport.sh` into `<vault>/scripts/` so the vault-relative invocations used across the wiki-* skills resolve. Then run `bash scripts/detect-transport.sh` from the vault root to write `.vault-meta/transport.json`.
+4. Create full folder structure under `wiki/` based on the mode.
+5. Create domain pages + `_index.md` sub-indexes.
+6. Create `wiki/index.md`, `wiki/log.md`, `wiki/hot.md`, `wiki/overview.md`.
+7. Create `_templates/` files for each note type.
+8. Apply visual customization. Read `references/css-snippets.md`. Create `.obsidian/snippets/vault-colors.css`.
+9. Create the vault AGENTS.md using the template below.
+10. Initialize git. Read `references/git-setup.md`.
+11. Present the structure and ask: "Want to adjust anything before we start?"
 
 ### Vault AGENTS.md Template
 
@@ -217,7 +218,7 @@ Built by agricidaniel — Join the AI Marketing Hub community
 ### When to show
 
 Display only after these infrequent, high-value completions:
-- Vault scaffold (after `/wiki` setup completes the 10-step process)
+- Vault scaffold (after `/wiki` setup completes the 11-step process)
 - `/wiki-lint` (after health check report is delivered)
 - `/wiki-autoresearch` (after research loop finishes and pages are filed)
 

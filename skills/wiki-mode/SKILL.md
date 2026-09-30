@@ -60,10 +60,12 @@ The v1.6 + v1.7 vault structure was opinion-free — `wiki/sources/`, `wiki/enti
 ## How to set the mode
 
 ```bash
-bash bin/setup-mode.sh
+bash /path/to/skills/wiki-mode/scripts/setup-mode.sh /path/to/vault
+# e.g. after `npx skills add openrafa/opencode-obsidian-wiki --agent opencode`:
+#   bash ~/.config/opencode/skills/wiki-mode/scripts/setup-mode.sh /path/to/vault
 ```
 
-Interactive prompt: pick one of the 4 modes. Writes `.vault-meta/mode.json`. Optionally seeds template folders (LYT `mocs/`, PARA `projects/areas/resources/archives/`).
+Interactive prompt: pick one of the 4 modes (or `--mode lyt` for non-interactive use). Writes `.vault-meta/mode.json` via the vault's provisioned `scripts/wiki-mode.py`. Optionally seeds template folders (LYT `mocs/`, PARA `projects/areas/resources/archives/`).
 
 To check the current mode programmatically:
 
@@ -153,7 +155,7 @@ Skills that file new pages consult the template matching the (mode, content-type
 
 Switching modes does NOT auto-migrate existing files. Manual migration:
 
-1. Set new mode: `bash bin/setup-mode.sh`
+1. Set new mode: re-run the skill's `scripts/setup-mode.sh <vault>`
 2. Existing files remain in their original locations and continue to work
 3. New files file per the new mode
 4. (Optional) Manually move existing files to the new structure using your file manager or `git mv`
@@ -166,7 +168,7 @@ For LYT specifically: after switching to LYT, run `lint the wiki` (skill: wiki-l
 
 ## Feature gating
 
-This skill is universally available in v1.8+. No `bin/setup-*.sh` required for the skill itself — only for explicitly setting a non-default mode. Skills that consume the mode check for `.vault-meta/mode.json`; absence = generic.
+This skill is universally available in v1.8+. No setup script required for the skill itself — only for explicitly setting a non-default mode. Skills that consume the mode check for `.vault-meta/mode.json`; absence = generic.
 
 ```bash
 # Detection idiom for consumers:
@@ -189,10 +191,8 @@ After v1.8: claude-obsidian leads on 5 of 7 axes per compass artifact. The remai
 
 ## Cross-reference
 
-- [`docs/methodology-modes-guide.md`](../../docs/methodology-modes-guide.md) — narrative guide, when-to-use-which decision tree
-- [`wiki/references/methodology-modes.md`](../../wiki/references/methodology-modes.md) — short decision tree
-- [`docs/compound-vault-guide.md`](../../docs/compound-vault-guide.md) — v1.7 omnibus (v1.8 builds on this)
-- v1.7.0 audit §9 axis 6 (methodology TIE → LEAD): [`docs/audits/v1.7.0-audit-2026-05-17.md`](../../docs/audits/v1.7.0-audit-2026-05-17.md)
+- Methodology deep-dive (`docs/methodology-modes-guide.md`, `docs/compound-vault-guide.md`, historical audits): live in the upstream repo [openrafa/opencode-obsidian-wiki](https://github.com/openrafa/opencode-obsidian-wiki) — not shipped in the skill bundle.
+- Runtime router: this skill's `scripts/wiki-mode.py`, provisioned into the vault via the `wiki` skill's `scripts/setup-vault.sh <vault>`.
 
 ---
 

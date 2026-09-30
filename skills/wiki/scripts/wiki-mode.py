@@ -7,7 +7,7 @@ new content of type X be filed under mode Y." Consumed by:
   - skills/wiki-ingest/SKILL.md  (where to file new source/entity/concept pages)
   - skills/save/SKILL.md         (where to file session notes)
   - skills/autoresearch/SKILL.md (where to file research output)
-  - bin/setup-mode.sh            (writes .vault-meta/mode.json)
+  - scripts/setup-mode.sh         (writes .vault-meta/mode.json; ships with the wiki-mode skill)
 
 If `.vault-meta/mode.json` is absent → mode = "generic" → behavior identical
 to v1.7. No skill needs to special-case the missing-config path.
@@ -90,7 +90,7 @@ def load_config():
         return merged
     except (json.JSONDecodeError, OSError) as e:
         print(f"ERR: cannot parse {MODE_PATH}: {e}", file=sys.stderr)
-        print("  Falling back to mode=generic. Re-run `bash bin/setup-mode.sh` to fix.",
+        print("  Falling back to mode=generic. Re-run the wiki-mode skill's scripts/setup-mode.sh to fix.",
               file=sys.stderr)
         return dict(DEFAULT_CONFIG)
 

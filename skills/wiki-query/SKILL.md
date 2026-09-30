@@ -18,7 +18,7 @@ Reads should prefer the same transport the rest of the plugin uses. Consult `.va
 - **mcp-obsidian** / **mcpvault** — `read_note`, `search_notes` (via obsidian-vault MCP server); see [`skills/wiki/references/mcp-setup.md`](../wiki/references/mcp-setup.md)
 - **filesystem** — `Read` and `Glob`/`Grep` tools (final floor; always works)
 
-Full decision tree: [`wiki/references/transport-fallback.md`](../../wiki/references/transport-fallback.md). Quick mode (hot.md only) is transport-agnostic — always uses `Read`.
+Full decision tree: see [`skills/wiki-cli/SKILL.md`](../wiki-cli/SKILL.md) §Detection. Quick mode (hot.md only) is transport-agnostic — always uses `Read`.
 
 ---
 
@@ -36,7 +36,7 @@ If `retrieve.py` exits 10 (feature not provisioned), or any step in the pipeline
 
 Quick mode always skips retrieval (hot.md only — keeps the ~1,500 token budget intact).
 
-Full spec: [`skills/wiki-retrieve/SKILL.md`](../wiki-retrieve/SKILL.md). Setup: `bash bin/setup-retrieve.sh`. The legacy read-order workflows below remain authoritative when wiki-retrieve is not installed.
+Full spec: [`skills/wiki-retrieve/SKILL.md`](../wiki-retrieve/SKILL.md). Setup: run the bundled `scripts/setup-retrieve.sh <vault>` from the wiki-retrieve skill (it provisions `scripts/retrieve.py` into the vault). The legacy read-order workflows below remain authoritative when wiki-retrieve is not installed.
 
 ---
 

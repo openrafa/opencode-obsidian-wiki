@@ -24,6 +24,25 @@ Agent **wiki / Obsidian** skills。默认装到 **按需 profile**（`~/.agents/
 
 ## 快速开始
 
+### 方式一 — skills CLI（任意 agent，支持 74+ 运行时）
+
+```bash
+npx skills add openrafa/opencode-obsidian-wiki
+# → 符号链接到对应 agent 的 skill 目录（如 ~/.config/opencode/skills/）
+# wiki-* 建议按需逐个安装：
+npx skills add openrafa/opencode-obsidian-wiki --skill wiki --skill wiki-ingest --skill wiki-query
+```
+
+运行时 helper 脚本随 skill 包分发。每个 vault 一次性布防（`wiki`、`wiki-mode`、`wiki-retrieve`、`wiki-cli` 需要）：
+
+```bash
+bash ~/.config/opencode/skills/wiki/scripts/setup-vault.sh /path/to/vault      # wiki-mode.py、wiki-lock.sh 等
+bash ~/.config/opencode/skills/wiki-mode/scripts/setup-mode.sh /path/to/vault  # 设置 LYT / PARA / Zettel / generic
+bash ~/.config/opencode/skills/wiki-retrieve/scripts/setup-retrieve.sh /path/to/vault  # 混合检索管线
+```
+
+### 方式二 — 克隆安装（RAFA wiki profile）
+
 1. 选择一个 agent 运行时（OpenCode、pi、omp — 见[工具分层](https://github.com/openrafa/opencode-methodology/blob/main/docs/tool-layering.zh-CN.md) 与 [skill profiles](https://github.com/openrafa/opencode-methodology/blob/main/docs/skill-profiles.zh-CN.md)）。
 2. 启用远程出口前先读 [`docs/workflow-model.zh-CN.md`](docs/workflow-model.zh-CN.md) 与 [`docs/transport-model.zh-CN.md`](docs/transport-model.zh-CN.md)。
 3. 克隆并安装 **wiki profile**（推荐）：

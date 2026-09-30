@@ -197,7 +197,7 @@ The 10-principle framework composes with the rest of the plugin:
 - **`/best-practices`** (six-cut engineering kernel): The THINK stage's analytical engine. The 10-principle loop wraps the six-cut; the six-cut is the inside of stage 4.
 - **`/save`**: After GROW, save the insights worth not re-deriving. The session note IS the GROW artifact.
 - **`/wiki-lint`**: Periodic audits of the wiki are themselves a GROW step at the system level.
-- **`agents/verifier.md`**: An OBSERVE-internal substitute for solo work — fresh-context reviewer that catches biases the chair missed.
+- **`agents/verifier.md`** (upstream plugin component, not shipped in this bundle): an OBSERVE-internal substitute for solo work — fresh-context reviewer that catches biases the chair missed.
 - **`/autoresearch`**: A LISTEN amplifier — surfaces external signals the chair would not have found alone.
 
 Every other skill in this plugin has a "How to think" appendix mapping its specific work to these 10 stages. Read those appendices for skill-specific applications.
@@ -207,7 +207,7 @@ Every other skill in this plugin has a "How to think" appendix mapping its speci
 ## Reference
 
 - This skill is the canonical source for the 10-principle framework in this plugin.
-- Pre-push audit example using the framework as audit methodology: [`docs/audits/v1.8.0-pre-push-audit-2026-05-18.md`](../../docs/audits/v1.8.0-pre-push-audit-2026-05-18.md)
+- Pre-push audit example using the framework as audit methodology: `docs/audits/v1.8.0-pre-push-audit-2026-05-18.md` in the upstream repo [openrafa/opencode-obsidian-wiki](https://github.com/openrafa/opencode-obsidian-wiki) (not shipped in the skill bundle).
 - The framework's enforcement layer is `/best-practices` (loaded separately).
 - The skill does not modify files or execute mutations. It loads structure and discipline; what you do with that is the next decision.
 

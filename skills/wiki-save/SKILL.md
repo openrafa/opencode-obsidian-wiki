@@ -26,7 +26,7 @@ The session-note write itself follows the standard transport policy. Read `.vaul
 - **mcp-obsidian** / **mcpvault** — `write_note` (via obsidian-vault MCP server)
 - **filesystem** — `Write` tool with absolute path
 
-Full decision tree: [`wiki/references/transport-fallback.md`](../../wiki/references/transport-fallback.md). Index/log/hot updates use the same transport.
+Full decision tree: see [`skills/wiki-cli/SKILL.md`](../wiki-cli/SKILL.md) §Detection. Index/log/hot updates use the same transport.
 
 ---
 

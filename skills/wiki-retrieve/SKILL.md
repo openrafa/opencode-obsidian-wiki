@@ -1,6 +1,6 @@
 ---
 name: wiki-retrieve
-description: "Hybrid retrieval primitive for the Compound Vault. Replaces the v1.6 static hot→index→drill read order with contextual-prefix + BM25 + cosine-rerank, modeled on Anthropic's Sept 2024 Contextual Retrieval research (35-49-67% retrieval-failure reduction). Opt-in via `bash bin/setup-retrieve.sh`; feature-detected by wiki-query and wiki-autoresearch. Triggers on: retrieve, hybrid retrieval, BM25, rerank, contextual retrieval, search the chunks, chunk search, vault search, semantic search, what chunks match, find relevant passages."
+description: "Hybrid retrieval primitive for the Compound Vault. Replaces the v1.6 static hot→index→drill read order with contextual-prefix + BM25 + cosine-rerank, modeled on Anthropic's Sept 2024 Contextual Retrieval research (35-49-67% retrieval-failure reduction). Opt-in via the bundled `scripts/setup-retrieve.sh <vault>`; feature-detected by wiki-query and wiki-autoresearch. Triggers on: retrieve, hybrid retrieval, BM25, rerank, contextual retrieval, search the chunks, chunk search, vault search, semantic search, what chunks match, find relevant passages."
 allowed-tools: Read Bash
 ---
 
@@ -17,11 +17,11 @@ The v1.6 query path was `Read(hot.md) → Read(index.md) → Read(3-5 pages) →
 Tier 1 (Anthropic API) and tier 2 (Claude CLI subprocess — requires the `claude` binary on PATH) of the contextual-prefix generator send **wiki page bodies off-machine**. As of v1.7.1, both tiers are GATED behind explicit user consent at two layers:
 
 - `scripts/contextual-prefix.py --allow-egress` (default off). Without the flag, `pick_prefix_tier()` returns `"synthetic"` regardless of `ANTHROPIC_API_KEY` or `claude` binary presence.
-- `bin/setup-retrieve.sh` prompts before any non-synthetic Stage 1 run; default is abort.
+- `scripts/setup-retrieve.sh` never enables egress: Stage 1 runs the on-machine synthetic tier. Tier 1/2 require manually running `scripts/contextual-prefix.py --allow-egress` inside the vault after provisioning.
 
-To run fully on-machine (tier 3 synthetic prefix + local ollama rerank), use `bash bin/setup-retrieve.sh --no-llm`. This is also the effective behavior if you decline the consent prompt or omit `--allow-egress`.
+To run fully on-machine (tier 3 synthetic prefix + local ollama rerank), just run `bash scripts/setup-retrieve.sh <vault> --no-llm` — or plain, since synthetic is the default tier.
 
-The guard mirrors `scripts/tiling-check.py:351` `--allow-remote-ollama`. v1.6 vaults that never provisioned this skill see zero behavior change.
+The guard mirrors the `--allow-remote-ollama` opt-in in the `wiki` skill's `tiling-check.py`. v1.6 vaults that never provisioned this skill see zero behavior change.
 
 ---
 
@@ -81,17 +81,18 @@ If detection fails, callers MUST fall back to the v1.6 read order. This skill ne
 ## Setup
 
 ```bash
-bash bin/setup-retrieve.sh
+bash /path/to/skills/wiki-retrieve/scripts/setup-retrieve.sh /path/to/vault
+# e.g. after `npx skills add openrafa/opencode-obsidian-wiki --agent opencode`:
+#   bash ~/.config/opencode/skills/wiki-retrieve/scripts/setup-retrieve.sh /path/to/vault
 ```
 
 What it does, in order:
-1. Sanity-checks the 4 scripts are present and executable.
+1. Provisions the 4 helper scripts (`contextual-prefix.py`, `bm25-index.py`, `retrieve.py`, `rerank.py`) into `<vault>/scripts/` — the helpers locate the vault as the parent of their own directory, so they only work from there.
 2. Creates `.vault-meta/chunks/` and `.vault-meta/bm25/`.
-3. Probes ollama at `http://127.0.0.1:11434` for `nomic-embed-text` (rerank prerequisite). Reports status; does not install.
-4. Reports which contextual-prefix tier will be used (Anthropic API / Claude CLI / synthetic). The Claude CLI tier requires the `claude` binary on PATH; if unavailable, falls back to synthetic.
-5. Runs `contextual-prefix.py --all` to chunk + contextualize every wiki page.
-6. Runs `bm25-index.py build`.
-7. Smoke-tests `retrieve.py` against the query "wiki".
+3. Runs `contextual-prefix.py --all` to chunk + contextualize every wiki page (synthetic tier unless egress was enabled manually).
+4. Runs `bm25-index.py build`.
+5. Smoke-tests `retrieve.py` against the query "wiki".
+6. Probes ollama at `http://127.0.0.1:11434` for `nomic-embed-text` and reports rerank availability (installing is up to you).
 
 Flags:
 - `--check` — diagnostics only, no provisioning.
@@ -107,7 +108,7 @@ Per Anthropic's published research, contextual-prefix generation costs approxima
 If you want to validate cost before running on a large vault:
 
 ```bash
-bash bin/setup-retrieve.sh --no-llm   # provision with tier-3 synthetic prefix
+bash scripts/setup-retrieve.sh <vault> --no-llm   # provision with tier-3 synthetic prefix
 # inspect retrieval quality manually; if insufficient, re-run without --no-llm
 ```
 
@@ -181,7 +182,7 @@ To wipe and start over:
 
 ```bash
 rm -rf .vault-meta/chunks/ .vault-meta/bm25/ .vault-meta/embed-cache.json
-bash bin/setup-retrieve.sh
+bash scripts/setup-retrieve.sh <vault> --rebuild
 ```
 
 ---
@@ -202,9 +203,9 @@ Documented for transparency; not implemented in v1.7.0:
 
 ## Cross-reference
 
-- Decision tree for transports: [`wiki/references/transport-fallback.md`](../../wiki/references/transport-fallback.md)
+- Decision tree for transports: [`skills/wiki-cli/SKILL.md`](../wiki-cli/SKILL.md) §Detection
 - Concurrency policy: [`skills/wiki-ingest/SKILL.md`](../wiki-ingest/SKILL.md) §Concurrency
-- DragonScale Memory: [`wiki/concepts/DragonScale Memory.md`](../../wiki/concepts/DragonScale%20Memory.md)
+- DragonScale Memory: concept page `wiki/concepts/DragonScale Memory.md` in upstream-project vaults (not shipped in the skill bundle)
 - Anthropic Contextual Retrieval research: https://www.anthropic.com/news/contextual-retrieval
 
 ---
@@ -221,7 +222,7 @@ When working on this skill, apply the 10-principle loop. See [`skills/wiki-think
 | 4 | THINK | Which retrieval strategy fits this query? BM25-only / BM25 + rerank / contextual-prefix + BM25 + rerank. |
 | 5 | CONNECT (lat) | How does this hybrid compare to v1.6 baseline? +32pp top-1 / +41% error reduction is the published delta. |
 | 6 | CONNECT (sys) | `--allow-egress` consent gate for Anthropic API; ollama runs local-only; rerank caches under `.vault-meta/`. |
-| 7 | FEEL | When not provisioned, exit 10 with a friendly "run `bash bin/setup-retrieve.sh` first" message — not a stack trace. |
+| 7 | FEEL | When not provisioned, exit 10 with a friendly "run the wiki-retrieve setup script first" message — not a stack trace. |
 | 8 | ACCEPT | When retrieval returns empty, say so honestly. Don't fabricate. Don't pad with low-confidence guesses. |
 | 9 | CREATE | A ranked candidate list with `--explain` traceability for every score component. |
 | 10 | GROW | Queries that consistently fail → content gaps in the wiki. Track those as wiki-autoresearch inputs. |

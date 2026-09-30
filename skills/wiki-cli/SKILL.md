@@ -29,7 +29,7 @@ CLI loses to MCP on exactly one axis: it only works on machines where Obsidian i
 
 ## Detection
 
-At session start (or vault setup), run:
+At session start (or vault setup), run (one-time provisioning via the `wiki` skill's `scripts/setup-vault.sh <vault>` puts the script at `<vault>/scripts/`):
 
 ```bash
 bash scripts/detect-transport.sh
@@ -147,16 +147,16 @@ obsidian-cli bookmarks "$VAULT"
 - **Mobile (iOS Share extension)**: filesystem write into `.raw/` is the only path; CLI is desktop-only.
 - **CI / headless ingest jobs**: filesystem with manual frontmatter parsing.
 - **Cross-vault operations**: CLI binds to one vault root per invocation; for federation, fall back to filesystem walks.
-- **Live edits while Obsidian is mid-save**: rare race; CLI handles it correctly but in pathological cases the v1.7 `wiki-lock.sh` advisory locks (see [skills/wiki-fold/](../wiki-fold/SKILL.md) and `agents/wiki-ingest.md`) should be acquired first.
+- **Live edits while Obsidian is mid-save**: rare race; CLI handles it correctly but in pathological cases the v1.7 `wiki-lock.sh` advisory locks (see [skills/wiki-fold/](../wiki-fold/SKILL.md)) should be acquired first.
 
 ---
 
 ## Cross-reference
 
-- Decision tree: [`wiki/references/transport-fallback.md`](../../wiki/references/transport-fallback.md)
+- Decision tree: this skill's §Detection (`transport.json` `preferred` + `fallback_chain`)
 - Legacy MCP options (A/B/C/D): [`skills/wiki/references/mcp-setup.md`](../wiki/references/mcp-setup.md)
 - Concurrency policy (v1.7+): [`skills/wiki-ingest/SKILL.md`](../wiki-ingest/SKILL.md) §Concurrency
-- Detection script: [`scripts/detect-transport.sh`](../../scripts/detect-transport.sh)
+- Detection script: bundled with this skill at `skills/wiki-cli/scripts/detect-transport.sh`; provision it into the vault once via the `wiki` skill's `scripts/setup-vault.sh <vault>`, then call it as `bash scripts/detect-transport.sh` from the vault root.
 
 ---
 

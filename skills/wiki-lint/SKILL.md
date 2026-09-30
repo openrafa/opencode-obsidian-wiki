@@ -21,7 +21,7 @@ Lint primarily reads, then writes a single report file. Both follow the standard
 - **mcp-obsidian** / **mcpvault** — `read_multiple_notes`, `list_all_tags` (via obsidian-vault MCP server)
 - **filesystem** — `Read`/`Glob`/`Grep` (final floor; current v1.6 behavior)
 
-Full decision tree: [`wiki/references/transport-fallback.md`](../../wiki/references/transport-fallback.md). DragonScale Mechanism 3 tiling lint is a separate code path (Python script) and bypasses transport selection.
+Full decision tree: see [`skills/wiki-cli/SKILL.md`](../wiki-cli/SKILL.md) §Detection. DragonScale Mechanism 3 tiling lint is a separate code path (Python script) and bypasses transport selection.
 
 ---
 

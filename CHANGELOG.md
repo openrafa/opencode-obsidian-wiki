@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.3.1
+
+- Skills are now installable via the skills CLI: `npx skills add openrafa/opencode-obsidian-wiki` (bundles already met the `skills/<name>/SKILL.md` layout; READMEs document the flow for English and Chinese).
+- `vault-scripts/` dissolved into the skill bundles that own them — `npx skills add` installs a skill directory as-is, so runtime helpers must travel with their skill: retrieval helpers (`contextual-prefix.py`, `bm25-index.py`, `retrieve.py`, `rerank.py`) → `skills/wiki-retrieve/scripts/`; `detect-transport.sh` → `skills/wiki-cli/scripts/`; `wiki-mode.py`, `wiki-lock.sh`, `allocate-address.sh`, `tiling-check.py`, `boundary-score.py` (+ benchmark-only `benchmark-runner.py`, `baseline-v16.py`) → `skills/wiki/scripts/`.
+- New `skills/wiki/scripts/setup-vault.sh`: provisions the vault-runtime helpers into `<vault>/scripts/` (helpers locate the vault as the parent of their own directory); wired into the `wiki` SCAFFOLD steps.
+- New `skills/wiki-retrieve/scripts/setup-retrieve.sh`: replaces the never-shipped `bin/setup-retrieve.sh` — provisions retrieval helpers, runs contextual-prefix (synthetic tier by default; egress stays off) + BM25 build, smoke-tests `retrieve.py`; flags `--check`, `--no-llm`, `--rebuild`.
+- New `skills/wiki-mode/scripts/setup-mode.sh`: replaces the never-shipped `bin/setup-mode.sh` — interactive or `--mode <m>` selection, writes `.vault-meta/mode.json`, seeds LYT/PARA folders.
+- Fixed dangling references inside skill bodies: removed links to `wiki/references/transport-fallback.md`, `docs/` design guides, `agents/*.md`, and `hooks/hooks.json` that were not shipped in the skill bundle (now point at shipped content or note the upstream location).
+
 ## 0.3.0
 
 - Wiki skills default to the opt-in profile directory `~/.agents/profiles/wiki/skills/` (`scripts/install.sh --profile wiki`). `--prune-shared` removes leftover `wiki-*` from `~/.agents/skills`.
